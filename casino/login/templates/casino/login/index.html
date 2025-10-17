@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to the Casino!</title>
+</head>
+<body>
+<main>
+    <h1>WELCOME TO LE CASINO</h1>
+
+    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
+        {% csrf_token %}
+        <div class="box">
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+            <button type="submit">Login</button>
+        </div>
+    </form>
+
+    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}">
+        {% csrf_token %}
+        <div class="box">
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+            <label for="email"><b>Email</b></label>
+            <input type="text" placeholder="Enter Email" name="email" required>
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+            <label for="password_rep"><b>Password</b></label>
+            <input type="password" placeholder="Repeat Password" name="password_rep" required>
+            <button type="submit">Login</button>
+        </div>
+    </form>
+
+
+    {% if error %}
+        <h3 style="color:red">Wyjebka</h3>
+    {% endif %}
+
+    <div class="side_box">
+        <h3>Write the secret PIN to join us</h3>
+        <input type="password" id="pin_input" placeholder="Enter PIN" maxlength="4" />
+        <button id="submit_pin">Submit</button>
+        <p id="error_msg" style="color:red; display:none;">Wrong PIN</p>
+    </div>
+
+    <script>
+        let attempts = 0;
+        const max_attempts = 3;
+        const redirect = "#";
+        document.getElementById("submit_pin").addEventListener("click", function() {
+            let error_msg = document.getElementById("error_msg")
+            attempts++;
+            if (attempts >= max_attempts) {
+                window.location.href = redirect;
+            } else {
+                error_msg.style.display = "block";
+            }
+            document.getElementById("pin_input").value = "";
+        });
+        {#const data = {#}
+        {#    username: "adam",#}
+        {#    email: "wiktor@gmail.com",#}
+        {#    password: "wiktor"#}
+        {#const button = document.getElementById('post_button');#}
+        {#button.addEventListener('click', async _ => {#}
+        {#    try {#}
+        {#        const response = await fetch("r/", {#}
+        {#            method: 'post',#}
+        {#            body: JSON.stringify(data)#}
+        {#        });#}
+        {#        console.log('Completed!', response);#}
+        {#    } catch(err) {#}
+        {#        console.error(`Error: ${err}`);#}
+        {#    }#}
+        {#});#}
+    </script>
+
+</main>
+</body>
+</html>

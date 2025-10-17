@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'casino.login',
-    'casino.roulette'
+    'casino.roulette',
+    'casino.base'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +51,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 ROOT_URLCONF = 'casino.urls'
 
 TEMPLATES = [

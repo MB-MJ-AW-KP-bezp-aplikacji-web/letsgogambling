@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Casino{% endblock %}</title>
+</head>
+<body>
+    {% include "includes/header.html" %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    {% include "includes/footer.html" %}
+</body>
+</html>

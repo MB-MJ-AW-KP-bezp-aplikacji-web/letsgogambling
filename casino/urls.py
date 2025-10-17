@@ -19,5 +19,6 @@ from django.urls import path, re_path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path(r'^$', include("casino.roulette.urls")),
+    path('', include("casino.roulette.urls")),
+    path('login/', include("casino.login.urls")),
 ]

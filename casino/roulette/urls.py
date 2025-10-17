@@ -1,6 +1,6 @@
-from django.urls import re_path
+from django.urls import path
 import casino.roulette.views as v
 
 urlpatterns = [
-    re_path(r"^$", v.roulette, name="roulette")
+    path("", v.roulette, name="roulette")
 ]
