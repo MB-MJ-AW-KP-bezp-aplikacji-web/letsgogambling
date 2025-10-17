@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'casino.aplikacja.apps.LeCasinoConfig',
+    'casino.login',
+    'casino.roulette'
 ]
 
 MIDDLEWARE = [
