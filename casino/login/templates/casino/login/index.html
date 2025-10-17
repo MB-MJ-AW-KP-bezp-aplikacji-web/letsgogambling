@@ -6,7 +6,9 @@
 </head>
 <body>
 <main>
-    <h1>WELCOME TO LE CASINO</h1>
+<p style="text-align: center; font-size: 60px; font-family: sans-serif;">
+  LE CASINO
+</p>
 
     <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
         {% csrf_token %}
