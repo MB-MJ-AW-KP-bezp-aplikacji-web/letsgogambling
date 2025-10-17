@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from casino.login.models import User
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse
 
@@ -25,11 +25,9 @@ def register_user(request):
     username = request.POST["username"]
     password = request.POST["password"]
     password2 = request.POST["password_rep"]
-    email = request.POST["email"]
-    if password != password2 or not username or not email or not password:
+    if password != password2 or not username  or not password:
         return redirect(f"{reverse("login_page")}?e=True")
-    user = User.objects.create_user(username, email, password)
-    user.save()
+    User.objects.create_user(username, password)
     return redirect("login_page")
 
 def logout_user(request):

@@ -1,27 +1,36 @@
+from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
 
-# Create your models here.
-class Codes(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField()
-    value = models.FloatField()
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError("no username provided!")
+        username = username.strip()
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
 
-class User(models.Model):
-    id = models.IntegerField(primary_key=True)
-    username = models.CharField()
-    password = models.CharField()
-    email = models.CharField()
-    balance = models.FloatField()
-    is_active = models.BooleanField()
-    is_admin = models.BooleanField()
+    def create_superuser(self, username, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        return self.create_user(username, password, **extra_fields)
 
-class UsedCodes(models.Model):
+class User(AbstractBaseUser):
     id = models.IntegerField(primary_key=True)
-    u_id = models.ForeignKey(Codes, on_delete=models.CASCADE)
-    c_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    username = models.CharField(unique=True)
+    balance = models.FloatField(default=0)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    objects = CustomUserManager()
 
-class History(models.Model):
-    id = models.IntegerField(primary_key=True)
-    u_id = models.ForeignKey(Codes, on_delete=models.CASCADE)
-    amount = models.FloatField()
-    cashout_time = models.DateTimeField()
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    def has_perm(self, perm, obj=None):
+        return self.is_staff
+
+    def has_module_perms(self, app_label):
+        return self.is_staff
+
+
