@@ -14,6 +14,26 @@
     {% endfor %}
 {% endif %}
 
+<form method="POST" action="{% url 'challenge' %}">
+    {% csrf_token %}
+    <label>How much money would you like to get?</label>    
+        <input type="radio" id="amount1" name="quantity" value="1">
+        <label for="amount1">$50</label>
+        <input type="radio" id="amount2" name="quantity" value="2">
+        <label for="amount2">$100</label>
+        <input type="radio" id="amount3" name="quantity" value="3">
+        <label for="amount3">$150</label>
+        <input type="radio" id="amount4" name="quantity" value="4">
+        <label for="amount4">$200</label>
+        <input type="radio" id="amount5" name="quantity" value="5">
+        <label for="amount5">$250</label>
+        <input type="radio" id="amount6" name="quantity" value="6">
+        <label for="amount6">$300</label>
+        <input type="radio" id="amount7" name="quantity" value="7">
+        <label for="amount7">$350</label>
+    <button type="submit">Get rich!</button>
+</form>
+
 <form method="POST" action="{% url 'magic_money_button' %}">
     {% csrf_token %}
     <button type="submit">Money +$100</button>
