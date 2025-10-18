@@ -14,18 +14,18 @@
     <form method="post" action="" style="border-style: dotted;">
         {% csrf_token %}
         <label for="quantity">How much are you willing to bet??</label>
-        <input type="number" name="quantity" min="1" max="500" required><br>
+        <input type="number" name="quantity" value = {{ last_bet }} min="1" max="500" required><br>
         <label>
-            <input type="radio" name="choice" value="0" required> Heads
+            <input type="radio" name="choice" value="0" required {% if last_choice == 0%}checked{% endif %}> Heads
         </label><br>
         <label>
-            <input type="radio" name="choice" value="1" required> Tails
+            <input type="radio" name="choice" value="1" required {% if last_choice == 1%}checked{% endif %}> Tails
         </label><br><br>
         <button id="coinflip" type="submit">GAMBLE</button>
     </form>
     {% if result != None %}
         {% if result == 1 %}
-            U WINNER
+            U WINNER (+${{ last_bet }})
         {% elif result == 0 %}
             U LOSER
         {% else %}
