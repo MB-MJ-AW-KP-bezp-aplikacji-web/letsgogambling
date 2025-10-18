@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Casino Profile{% endblock %}
+
+{% block content %}
+    <h1>Welcome, {{ request.user.username }}!</h1>
+
+    {% if message %}
+        <p style="color: green;">{{ message }}</p>
+    {% endif %}
+
+    <p>Your balance: ${{ balance }}</p>
+
+    <form method="POST" action="{% url 'magic_money_button' %}">
+        {% csrf_token %}
+        <button type="submit">Money +$100</button>
+    </form>
+
+
+    <h2>Other</h2>
+    <p>Balance: ${{ balance }}</p>
+{% endblock %}

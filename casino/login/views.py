@@ -27,7 +27,7 @@ def register_user(request):
     password2 = request.POST["password_rep"]
     if password != password2 or not username  or not password:
         return redirect(f"{reverse("login_page")}?e=True")
-    User.objects.create_user(username, password)
+    User.objects.create_user(username, password) # type: ignore
     return redirect("login_page")
 
 def logout_user(request):
