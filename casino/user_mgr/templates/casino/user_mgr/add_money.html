@@ -16,7 +16,7 @@
 
 <form method="POST" action="{% url 'challenge' %}">
     {% csrf_token %}
-    <label>How much money would you like to get?</label>    
+    {% comment %} <label>How much money would you like to get?</label>    
         <input type="radio" id="amount1" name="quantity" value="1">
         <label for="amount1">$50</label>
         <input type="radio" id="amount2" name="quantity" value="2">
@@ -31,7 +31,33 @@
         <label for="amount6">$300</label>
         <input type="radio" id="amount7" name="quantity" value="7">
         <label for="amount7">$350</label>
-    <button type="submit">Get rich!</button>
+    <button type="submit">Get rich!</button> {% endcomment %}
+    <h1>Work work work</h1>
+    <p>
+        In order to get paid in LE CASINO you need to compute a SHA256 hash that begins with as many 0s as possible.
+        Your task is to compute a suffix that together with the provided challenge: "{{ user_challenge }}" will result in the largest amount of trailing 0s.
+        For each concurrent 0 you will get paid more exponentially.
+        Example: assume challenge == "MONEY" and your_suffix == "XYZ". If concatenate the two and calculate a SHA256 hash
+        (assume SHA256("MONEYXYZ") == "0000XXYXXXXXYXXXXYYXXXXXXXXXXXXXXXXXXXXX"), you could cash it out for 4 0s.
+    </p>
+    <h2>RATIOS</h2>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Number of Leading Zeros</th>
+                <th>Payout ($)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zeros, payout in payout_table %}
+            <tr>
+                <td>{{ zeros }}</td>
+                <td>{{ payout }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 </form>
 
 <form method="POST" action="{% url 'magic_money_button' %}">

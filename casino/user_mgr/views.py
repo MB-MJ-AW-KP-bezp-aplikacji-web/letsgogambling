@@ -15,8 +15,15 @@ def profile_page(request):
 @login_required(login_url='/login/')
 def add_money(request):
     user = request.user
+    zeros_list = list(range(1, 11))
+    payout_table = []
+    for zeros in zeros_list:
+        payout = 40 ** (zeros - 4)
+        payout_table.append((zeros, payout))
     miner_data = {
         "balance": user.balance,
+        "zeros_list": zeros_list,
+        "payout_table": payout_table
         ##### more info
     }
     return render(request, "casino/user_mgr/add_money.html", miner_data)
