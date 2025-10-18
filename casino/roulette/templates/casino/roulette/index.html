@@ -32,5 +32,9 @@
             U TOO BROKE
         {% endif %}
     {% endif %}
+    {% if error != None %}
+       <p>{{ error }}</p>
+    {% endif %}
+
 
 {% endblock %}
