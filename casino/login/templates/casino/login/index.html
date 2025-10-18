@@ -3,34 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome to the Casino!</title>
+    <style>
+        .side_box {
+            position: absolute;
+            right: 0px;
+        }
+        input[type=number].no-spinner::-webkit-inner-spin-button,
+        input[type=number].no-spinner::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number].no-spinner {
+        -moz-appearance: textfield;
+        }
+    </style>
 </head>
 <body>
 <main>
-<p style="text-align: center; font-size: 60px; font-family: sans-serif;">
-  LE CASINO
-</p>
+    <p style="text-align: center; font-size: 60px; font-family: sans-serif;">
+    LE CASINO
+    </p>
 
-    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
+    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}" style="border-style: solid;">
         {% csrf_token %}
         <div class="box">
             <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required>
+            <input type="text" placeholder="Enter Username" name="username" required></br>
             <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required>
+            <input type="password" placeholder="Enter Password" name="password" required></br>
             <button type="submit">Login</button>
         </div>
     </form>
-
-    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}">
+    </br>
+    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}" style="border-style: double;">
         {% csrf_token %}
         <div class="box">
             <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required>
+            <input type="text" placeholder="Enter Username" name="username" required></br>
             <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required>
-            <label for="password_rep"><b>Password</b></label>
-            <input type="password" placeholder="Repeat Password" name="password_rep" required>
-            <button type="submit">Login</button>
+            <input type="password" placeholder="Enter Password" name="password" required></br>
+            <label for="password_rep"><b>Password again</b></label>
+            <input type="password" placeholder="Repeat Password" name="password_rep" required></br>
+            <button type="submit">Register</button>
         </div>
     </form>
 
@@ -39,44 +53,42 @@
         <h3 style="color:red">Wyjebka</h3>
     {% endif %}
 
-    <div class="side_box">
+    <form class="side_box" method="post" action="#">
+        {% csrf_token %}
+        <div style="border-style: solid;">
+            <h3>Write the secret PIN to join us</h3>
+            <input class="no-spinner" type="number" placeholder="Enter PIN" min="1000" max="9999" />
+            <button id="submit_pin" typr="submit">Submit</button>
+            <p id="error_msg" style="color:red; display:none;">Wrong PIN</p>
+        </div>
+    </form>
+
+    {% comment %} <div class="side_box">
         <h3>Write the secret PIN to join us</h3>
-        <input type="password" id="pin_input" placeholder="Enter PIN" maxlength="4" />
+        <input class="no-spinner" type="number" id="pin_input" placeholder="Enter PIN" min="1000" max="9999" />
         <button id="submit_pin">Submit</button>
         <p id="error_msg" style="color:red; display:none;">Wrong PIN</p>
-    </div>
+    </div> {% endcomment %}
 
-    <script>
+    {% comment %} <script>
         let attempts = 0;
         const max_attempts = 3;
-        const redirect = "#";
+        const redirect = "http://localhost:8000/";
         document.getElementById("submit_pin").addEventListener("click", function() {
-            let error_msg = document.getElementById("error_msg")
+            const pin_inpit = document.getElementById("pin_input");
+            const error_msg = document.getElementById("error_msg");
             attempts++;
             if (attempts >= max_attempts) {
                 window.location.href = redirect;
-            } else {
-                error_msg.style.display = "block";
+                error_msg.style.display = "none";
+                pin_input.value = "";
+                attempts = 0;
+                return;
             }
-            document.getElementById("pin_input").value = "";
+            error_msg.style.display = "block";
+            pin_input.value = "";
         });
-        {#const data = {#}
-        {#    username: "adam",#}
-        {#    email: "wiktor@gmail.com",#}
-        {#    password: "wiktor"#}
-        {#const button = document.getElementById('post_button');#}
-        {#button.addEventListener('click', async _ => {#}
-        {#    try {#}
-        {#        const response = await fetch("r/", {#}
-        {#            method: 'post',#}
-        {#            body: JSON.stringify(data)#}
-        {#        });#}
-        {#        console.log('Completed!', response);#}
-        {#    } catch(err) {#}
-        {#        console.error(`Error: ${err}`);#}
-        {#    }#}
-        {#});#}
-    </script>
+    </script> {% endcomment %}
 
 </main>
 </body>

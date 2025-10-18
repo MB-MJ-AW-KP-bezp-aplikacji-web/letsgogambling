@@ -13,7 +13,7 @@
     <form method="post" action="#" style="border-style: dotted;">
         {% csrf_token %}
         <label for="quantity">How much are you willing to bet??</label>
-        <input type="number" name="quantity" min="1" max="500"><br>
+        <input type="number" name="quantity" min="1" max="500" required><br>
         <label>
             <input type="radio" name="choice" value="1" required> Heads
         </label><br>
