@@ -1,6 +1,16 @@
+import base64
+import hashlib
+import random
+import string
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
+
+
+def make_challenge():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=24))
+
 
 @login_required(login_url='/login/')
 def profile_page(request):
@@ -12,21 +22,54 @@ def profile_page(request):
     }
     return render(request, "casino/user_mgr/index.html", miner_data)
 
+MIN_ZEROS = 5
 @login_required(login_url='/login/')
 def add_money(request):
     user = request.user
-    zeros_list = list(range(1, 11))
+    chal = request.session.get("chal")
+    err = None
+    if chal is None:
+        request.session["chal"] = chal = make_challenge()
+    zeros_list = list(range(0, 11))
     payout_table = []
     for zeros in zeros_list:
-        payout = 40 ** (zeros - 4)
+        payout = 40 ** (zeros - MIN_ZEROS)
         payout_table.append((zeros, payout))
+    pay = None
+    while True: # fake goto
+        if request.method == "POST":
+            sufix = request.POST.get("sufix")
+            if sufix is None:
+                err = "Invalid Sufix"
+                break
+            fr_sufix = ''
+            try:
+                fr_sufix = base64.b64decode(sufix.encode()).decode()
+            except Exception:
+                err = "Invalid Sufix"
+                break
+            result = hashlib.sha256(f"{chal}{fr_sufix}".encode()).hexdigest()
+            zeros = len(result) - len(result.lstrip('0'))
+
+            if zeros < MIN_ZEROS:
+                err = "Not enough leading zeros in hash"
+                break
+            pay = payout_table[zeros][1]
+            user.balance += pay
+            user.save()
+            request.session["chal"] = chal = make_challenge()
+        break
     miner_data = {
         "balance": user.balance,
         "zeros_list": zeros_list,
-        "payout_table": payout_table
+        "payout_table": payout_table,
+        "chal": chal,
+        "error": err,
+        "payout": pay,
         ##### more info
     }
     return render(request, "casino/user_mgr/add_money.html", miner_data)
+
 
 # Create your views here.
 @login_required(login_url='/login/')
@@ -38,12 +81,4 @@ def magic_money_button(request):
         messages.success(request, "Updated balance! +$100")
         return redirect('add_money')
     messages.error(request, "Donation error")
-    return redirect('add_money')
-
-@login_required(login_url='/login/')
-def challenge(request):
-    user = request.user
-    if request.method == "POST":
-        amount = int(request.POST["quantity"])
-        return redirect('add_money')
     return redirect('add_money')

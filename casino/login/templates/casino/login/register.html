@@ -26,21 +26,21 @@
     {% endif %}
 
 
-    <script>
-        let attempts = 0;
-        const max_attempts = 3;
-        const redirect = "#";
-        document.getElementById("submit_pin").addEventListener("click", function () {
-            let error_msg = document.getElementById("error_msg")
-            attempts++;
-            if (attempts >= max_attempts) {
-                window.location.href = redirect;
-            } else {
-                error_msg.style.display = "block";
-            }
-            document.getElementById("pin_input").value = "";
-        });
-    </script>
+{#    <script>#}
+{#        let attempts = 0;#}
+{#        const max_attempts = 3;#}
+{#        const redirect = "#";#}
+{#        document.getElementById("submit_pin").addEventListener("click", function () {#}
+{#            let error_msg = document.getElementById("error_msg")#}
+{#            attempts++;#}
+{#            if (attempts >= max_attempts) {#}
+{#                window.location.href = redirect;#}
+{#            } else {#}
+{#                error_msg.style.display = "block";#}
+{#            }#}
+{#            document.getElementById("pin_input").value = "";#}
+{#        });#}
+{#    </script>#}
 
 </main>
 </body>
