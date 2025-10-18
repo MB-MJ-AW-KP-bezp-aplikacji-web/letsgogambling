@@ -3,24 +3,34 @@
 {% block title %}Casino: Roulette{% endblock %}
 
 {% block content %}
+
     <h2>Roulette Placeholder</h2>
     <p>2x</p>
     <p>3x</p>
     <p>5x</p>
     <p>10x</p>
     <p>20x</p>
-
-    <form method="post" action="#" style="border-style: dotted;">
+    <p>BAL: {{ balance }} </p>
+    <form method="post" action="" style="border-style: dotted;">
         {% csrf_token %}
         <label for="quantity">How much are you willing to bet??</label>
         <input type="number" name="quantity" min="1" max="500" required><br>
         <label>
-            <input type="radio" name="choice" value="1" required> Heads
+            <input type="radio" name="choice" value="0" required> Heads
         </label><br>
         <label>
-            <input type="radio" name="choice" value="2" required> Tails
+            <input type="radio" name="choice" value="1" required> Tails
         </label><br><br>
         <button id="coinflip" type="submit">GAMBLE</button>
     </form>
+    {% if result != None %}
+        {% if result == 1 %}
+            U WINNER
+        {% elif result == 0 %}
+            U LOSER
+        {% else %}
+            U TOO BROKE
+        {% endif %}
+    {% endif %}
 
 {% endblock %}
