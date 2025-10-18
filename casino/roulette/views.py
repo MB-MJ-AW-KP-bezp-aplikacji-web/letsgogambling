@@ -34,4 +34,4 @@ def roulette(request):
                     result = 0
                     user.balance -= quantity
                 user.save()
-    return render(request, "casino/roulette/index.html", {"balance": user.balance, "result": result, "error": err, "last_bet": request.session["bet"], "last_choice": request.session["choice"]})
+    return render(request, "casino/roulette/index.html", {"balance": user.balance, "result": result, "error": err, "last_bet": request.session.get("bet"), "last_choice": request.session.get("choice")})
