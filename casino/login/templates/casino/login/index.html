@@ -34,30 +34,18 @@
             <button type="submit">Login</button>
         </div>
     </form>
-    </br>
-    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}" style="border-style: double;">
-        {% csrf_token %}
-        <div class="box">
-            <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required></br>
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required></br>
-            <label for="password_rep"><b>Password again</b></label>
-            <input type="password" placeholder="Repeat Password" name="password_rep" required></br>
-            <button type="submit">Register</button>
-        </div>
-    </form>
+    <br>
 
 
-    {% if error %}
-        <h3 style="color:red">Wyjebka</h3>
+    {% if error != None %}
+        <h3 style="color:red">{{ error }}</h3>
     {% endif %}
 
     <form class="side_box" method="post" action="#">
         {% csrf_token %}
         <div style="border-style: solid;">
             <h3>Write the secret PIN to join us</h3>
-            <input class="no-spinner" type="number" placeholder="Enter PIN" min="1000" max="9999" />
+            <input name="pin" class="no-spinner" type="number" placeholder="Enter PIN" min="1000" max="9999" />
             <button id="submit_pin" typr="submit">Submit</button>
             <p id="error_msg" style="color:red; display:none;">Wrong PIN</p>
         </div>
