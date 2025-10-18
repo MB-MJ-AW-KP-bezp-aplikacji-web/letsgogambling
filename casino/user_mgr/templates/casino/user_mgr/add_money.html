@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Casino Profile{% endblock %}
+{% block title %}Brokie{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ request.user.username }}!</h1>
 
-{% comment %} {% if messages %}
+{% if messages %}
     {% for message in messages %}
         {% if message.tags == "error" %}
             <p style="color: red;">{{ message }}</p>
@@ -13,15 +12,11 @@
             <p style="color: green;">{{ message }}</p>
         {% endif %}
     {% endfor %}
-{% endif %} {% endcomment %}
+{% endif %}
 
-<p>Your balance: ${{ balance }}</p>
-
-{% comment %} <form method="POST" action="{% url 'magic_money_button' %}">
+<form method="POST" action="{% url 'magic_money_button' %}">
     {% csrf_token %}
     <button type="submit">Money +$100</button>
-</form> {% endcomment %}
+</form>
 
-<h2>Other</h2>
-<p>suckaniggadick</p>
 {% endblock %}
