@@ -33,7 +33,7 @@ def add_money(request):
     zeros_list = list(range(0, 11))
     payout_table = []
     for zeros in zeros_list:
-        payout = 40 ** (zeros - MIN_ZEROS)
+        payout = 256 ** (zeros - MIN_ZEROS)
         payout_table.append((zeros, payout))
     pay = None
     while True: # fake goto

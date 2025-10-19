@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'casino.login',
     'casino.roulette',
     'casino.base',
-    'casino.user_mgr'
+    'casino.user_mgr',
+    'casino.slots'
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}SLOTS!!!!{% endblock %}
+
+{% block content %}
+<h1>
+<table>
+  {% for row in machine %}
+    <tr>
+      {% for symbol in row %}
+        <td>[{{ symbol }}]</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
+</h1>
+
+<p>BAL: {{ balance }} </p>
+<form method="POST" action="/slots/spin/">
+    {% csrf_token %}
+    <label for="quantity">How much are you willing to bet??</label>
+    <input type="number" name="quantity" value = {{ last_bet }} min="1" required><br>
+    <button id="roll" type="submit">GAMBLE</button>
+</form>
+
+    {% if result != None %}
+        {% if result == 1 %}
+            U WINNER (+${{ win }})
+        {% elif result == 0 %}
+            U LOSER
+        {% else %}
+            U TOO BROKE
+        {% endif %}
+    {% endif %}
+    {% if error != None %}
+       <p>{{ error }}</p>
+    {% endif %}
+{% endblock %}
