@@ -50,7 +50,6 @@ fetch("/api/balance/")
     balanceEl.textContent = data.balance;
   });
 
-// Spin action
 spinBtn.addEventListener("click", () => {
     const bet = document.getElementById("bet-amount").value;
 
@@ -73,7 +72,6 @@ spinBtn.addEventListener("click", () => {
             return;
         }
 
-        // Update symbols
         const rows = document.querySelectorAll("#slot-machine tr");
         data.machine.forEach((row, i) => {
             row.forEach((sym, j) => {
@@ -83,10 +81,8 @@ spinBtn.addEventListener("click", () => {
             });
         });
 
-        // Update balance
         balanceEl.textContent = data.balance;
 
-        // Show result
         if (data.win > 0) {
             messageEl.textContent = `WINNER! +$${data.win}`;
         } else {

@@ -15,6 +15,6 @@ class UsedCodes(models.Model):
 
 class History(models.Model):
     id = models.IntegerField(primary_key=True)
-    u_id = models.ForeignKey(Codes, on_delete=models.CASCADE)
+    u_id = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField()
     cashout_time = models.DateTimeField()
