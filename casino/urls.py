@@ -22,5 +22,6 @@ urlpatterns = [
     path('', include("casino.roulette.urls")),
     path('login/', include("casino.login.urls")),
     path('', include("casino.user_mgr.urls")),
-    path('slots/', include("casino.slots.urls"))
+    path('slots/', include("casino.slots.urls")),
+    path('api/', include("casino.api.urls")),
 ]
