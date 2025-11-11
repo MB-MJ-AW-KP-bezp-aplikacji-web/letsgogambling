@@ -1,38 +1,102 @@
 {% extends "base.html" %}
 
-{% block title %}SLOTS!!!!{% endblock %}
+{% block title %}Slots{% endblock %}
 
 {% block content %}
-<h1>
-<table>
-  {% for row in machine %}
-    <tr>
-      {% for symbol in row %}
-        <td>[{{ symbol }}]</td>
+<h1>SLOTS</h1>
+
+<p>BAL: <span id="balance">0</span></p>
+
+<div id="slot-machine">
+  <h1>
+  <table>
+    <tbody>
+      {% for _ in "123" %}
+      <tr>
+        {% for _ in "123" %}
+          <td class="slot-symbol">❓</td>
+        {% endfor %}
+      </tr>
       {% endfor %}
-    </tr>
-  {% endfor %}
-</table>
+    </tbody>
+  </table>
 </h1>
+</div>
 
-<p>BAL: {{ balance }} </p>
-<form method="POST" action="/slots/spin/">
-    {% csrf_token %}
-    <label for="quantity">How much are you willing to bet??</label>
-    <input type="number" name="quantity" value = {{ last_bet }} min="1" required><br>
-    <button id="roll" type="submit">GAMBLE</button>
-</form>
+<hr>
 
-    {% if result != None %}
-        {% if result == 1 %}
-            U WINNER (+${{ win }})
-        {% elif result == 0 %}
-            U LOSER
-        {% else %}
-            U TOO BROKE
-        {% endif %}
-    {% endif %}
-    {% if error != None %}
-       <p>{{ error }}</p>
-    {% endif %}
+<label>Bet:</label>
+<input id="bet-amount" type="number" min="1" value="1">
+<button id="spin-btn">SPIN</button>
+
+<p id="message"></p>
+
+<script>
+function getCookie(name) {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith(name + '='))
+        ?.split('=')[1];
+}
+const csrftoken = getCookie('csrftoken');
+
+const balanceEl = document.getElementById("balance");
+const messageEl = document.getElementById("message");
+const symbolsEl = document.querySelectorAll(".slot-symbol");
+const spinBtn = document.getElementById("spin-btn");
+
+fetch("/api/balance/")
+  .then(res => res.json())
+  .then(data => {
+    balanceEl.textContent = data.balance;
+  });
+
+// Spin action
+spinBtn.addEventListener("click", () => {
+    const bet = document.getElementById("bet-amount").value;
+
+    fetch("/api/spin/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ bet: bet })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            messageEl.textContent = data.error;
+            return;
+        }
+        if (!data.machine) {
+            messageEl.textContent = "TOO BROKE!";
+            return;
+        }
+
+        // Update symbols
+        const rows = document.querySelectorAll("#slot-machine tr");
+        data.machine.forEach((row, i) => {
+            row.forEach((sym, j) => {
+                const cell = rows[i].children[j];
+                cell.textContent = sym;
+                cell.style.textDecoration = data.strikes[i][j] ? "line-through" : "none";
+            });
+        });
+
+        // Update balance
+        balanceEl.textContent = data.balance;
+
+        // Show result
+        if (data.win > 0) {
+            messageEl.textContent = `WINNER! +$${data.win}`;
+        } else {
+            messageEl.textContent = "U LOSER";
+        }
+    })
+    .catch(err => {
+        messageEl.textContent = "Server Error: " + err;
+    });
+});
+</script>
+
 {% endblock %}
