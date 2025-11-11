@@ -73,7 +73,7 @@ def check_win(machine: List[List[str]], bet: int) -> Tuple[List[List[str]], int]
     if machine[0][2] == machine[1][1] == machine[2][0]:
         value += add_value(1)
         for j in range(3):
-            machine_cpy[j][j+2%2] = strikethrough(machine_cpy[j][j+2%2])
+            machine_cpy[j][2-j] = strikethrough(machine_cpy[j][j+2%2])
     return machine_cpy, value
 
 # if __name__ == "__main__":
