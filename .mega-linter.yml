@@ -12,7 +12,14 @@ APPLY_FIXES: all
 
 # If you use ENABLE_LINTERS variable, all other linters will be disabled by
 # default
-# ENABLE_LINTERS:
+ENABLE_LINTERS:
+  - HTML_DJLINT
+  - PYTHON_BANDIT
+  - PYTHON_RUFF
+  - ACTION_ACTIONLINT
+  - DOCKERFILE_HADOLINT
+  - REPOSITORY_GITLEAKS
+  - REPOSITORY_TRIVY
 
 DISABLE:
   - COPYPASTE # Comment to enable checks of excessive copy-pastes
