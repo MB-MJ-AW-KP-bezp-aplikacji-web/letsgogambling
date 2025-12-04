@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from random import randint
 from typing import List, Tuple
 from copy import deepcopy
-
+from secrets import randbelow
 REELS = [
     ["🍒", "🍒", "🍒", "🍒", "🍒", "🍇", "🍇", "🍇", "🍇", "🍊", "🍊", "🍊", "🍉", "🍉", "🍉", "💕", "💕", "💕", "🔔", "🔔", "⭐", "⭐", "💎", "7️⃣"],
     ["🍒", "🍒", "🍒", "🍒", "🍇", "🍇", "🍇", "🍇", "🍊", "🍊", "🍊", "🍊", "🍉", "🍉", "🍉", "💕", "💕", "💕", "🔔", "🔔", "⭐", "⭐", "💎", "7️⃣"],
@@ -44,7 +44,7 @@ def slots(request):
 def simulate_spin() -> List[List[str]]:
     machine = []
     for reel in REELS:
-        middle = randint(0, len(reel)-1)
+        middle = randbelow(len(reel))
         collumn = [reel[(middle - 1) % len(reel)],
                reel[middle],
                reel[(middle + 1) % len(reel)]
