@@ -51,7 +51,13 @@ fetch("/api/balance/")
   });
 
 spinBtn.addEventListener("click", () => {
-    const bet = document.getElementById("bet-amount").value;
+    const betInput = document.getElementById("bet-amount").value;
+    const bet = Number(betInput);
+
+    if (!Number.isFinite(bet) || bet < 1) {
+        messageEl.textContent = "Invalid bet amount.";
+        return;
+    }
 
     fetch("/api/spin/", {
         method: "POST",
