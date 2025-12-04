@@ -58,7 +58,7 @@ def simulate_spin() -> List[List[str]]:
 
 def check_win(machine: List[List[str]], bet: int) -> Tuple[List[List[str]], int, List[List[bool]]]:
     value = 0
-    add_value = lambda i: bet * SYMBOL_VALUES[machine[i][1]]
+    add_value = lambda i: bet * SYMBOL_VALUES[machine[i][1]] # noqa: E731
     machine_cpy = deepcopy(machine)
     strikes = [[False]*3 for _ in range(3)]
 
