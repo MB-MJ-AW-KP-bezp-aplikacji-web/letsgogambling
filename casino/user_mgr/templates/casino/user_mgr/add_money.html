@@ -12,8 +12,6 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-
-
     {% comment %} <label>How much money would you like to get?</label>    
         <input type="radio" id="amount1" name="quantity" value="1">
         <label for="amount1">$50</label>
@@ -75,8 +73,6 @@
         {% endfor %}
         </tbody>
     </table>
-
-
 
     <form method="POST" action="{% url 'magic_money_button' %}">
         {% csrf_token %}

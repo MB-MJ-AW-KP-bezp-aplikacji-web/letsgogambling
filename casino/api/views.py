@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 from casino.base.models import User, History
 from casino.slots.views import simulate_spin, check_win
-from .serializers import *
+from .serializers import UserSerializer
 # from datetime import datetime
 
 # Create your views here.
