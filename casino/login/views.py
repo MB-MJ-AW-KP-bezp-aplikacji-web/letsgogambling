@@ -44,6 +44,9 @@ def register_user(request):
         if password != password2 or not username or not password:
             request.session['error'] = "passwords don't match"
             return redirect('register')
+        if User.objects.filter(username=username).exists():
+            request.session['error'] = "user with this username already exists."
+            return redirect('register')
         User.objects.create_user(username, password)
         request.session['error'] = None
         return redirect("login_page")
