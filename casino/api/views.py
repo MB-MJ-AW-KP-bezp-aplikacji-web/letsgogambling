@@ -25,7 +25,13 @@ def get_balance(request):
 @permission_classes([IsAuthenticated])
 def spin_api(request):
     user = request.user
-    bet = int(request.data.get("bet", 0))
+    raw_bet = request.data.get("bet")
+
+    try:
+        bet = int(raw_bet)
+    except (TypeError, ValueError):
+        return Response({"error": "Bet must be a number."}, status=400)
+
 
     if bet <= 0:
         return Response({"error": "Invalid bet"}, status=400)
