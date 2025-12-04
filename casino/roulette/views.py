@@ -1,9 +1,6 @@
-import random
-
+from secrets import choice
 from django.contrib.auth.decorators import login_required
-
 from django.shortcuts import render, HttpResponse
-
 from casino.login.models import User
 
 
@@ -13,21 +10,21 @@ def roulette(request):
     err = None
     user = request.user
     if request.method == "POST":
-        choice = None
+        usr_choice = None
         quantity = None
         try:
-            choice = int(request.POST.get("choice"))
+            usr_choice = int(request.POST.get("choice"))
             quantity = int(request.POST.get("quantity"))
         except Exception:
             err = "Invalid Amount"
         if err is None:
             request.session["bet"] = quantity
-            request.session["choice"] = choice
+            request.session["choice"] = usr_choice
             if quantity > user.balance or user.balance <= 0:
                 result = 2
             if result != 2 :
-                rand = random.randint(0, 1)
-                if rand == choice:
+                rand = choice([0, 1])
+                if rand == usr_choice:
                     result = 1
                     user.balance += quantity
                 else:

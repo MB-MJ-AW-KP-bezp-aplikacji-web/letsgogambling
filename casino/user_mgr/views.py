@@ -1,6 +1,6 @@
 import base64
 import hashlib
-import random
+from secrets import choice
 import string
 
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,9 @@ from casino.base.models import History
 
 
 def make_challenge():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=24))
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(choice(alphabet) for _ in range(24))
+
 
 
 @login_required(login_url='/login/')
