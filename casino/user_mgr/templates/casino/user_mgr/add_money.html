@@ -5,10 +5,10 @@
 
     {% if messages %}
         {% for message in messages %}
-            {% if message.tags == "error" %}
+            {% if message.tags == "error" %}<!-- djlint:off -->
                 <p style="color: red;">{{ message }}</p>
             {% else %}
-                <p style="color: green;">{{ message }}</p>
+                <p style="color: green;">{{ message }}</p><!-- djlint:on -->
             {% endif %}
         {% endfor %}
     {% endif %}
@@ -29,7 +29,7 @@
         <label for="amount7">$350</label>
     <button type="submit">Get rich!</button> {% endcomment %}
     <h1>Work work work</h1>
-    <form method="POST" action="">
+    <form method="post" action="">
         {% csrf_token %}
         <h3> YOUR CHALLENGE</h3>
         <p>{{ chal }}</p>
@@ -38,11 +38,11 @@
         </label><br>
         <button type="submit">SUBMIT</button>
     </form>
-    {% if payout != None %}
+    {% if payout != None %}<!-- djlint:off -->
         <h3 style="color:green">Nice job you earned ${{ payout }}</h3>
     {% endif %}
     {% if error != None %}
-        <h3 style="color:red">{{ error }}</h3>
+        <h3 style="color:red">{{ error }}</h3><!-- djlint:on -->
     {% endif %}
     <h1>YAP YAP</h1>
     <p>
@@ -74,7 +74,7 @@
         </tbody>
     </table>
 
-    <form method="POST" action="{% url 'magic_money_button' %}">
+    <form method="post" action="{% url 'magic_money_button' %}">
         {% csrf_token %}
         <button type="submit">Temporary magic Money button (+$100)</button>
     </form>
