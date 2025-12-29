@@ -1,11 +1,13 @@
-from django.shortcuts import render
+# from django.shortcuts import render
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics
-from casino.base.models import User
+from casino.base.models import User, History
 from casino.slots.views import simulate_spin, check_win
-from .serializers import *
+from .serializers import UserSerializer
+# from datetime import datetime
 
 # Create your views here.
 @permission_classes([IsAuthenticated])
@@ -23,7 +25,13 @@ def get_balance(request):
 @permission_classes([IsAuthenticated])
 def spin_api(request):
     user = request.user
-    bet = int(request.data.get("bet", 0))
+    raw_bet = request.data.get("bet")
+
+    try:
+        bet = int(raw_bet)
+    except (TypeError, ValueError):
+        return Response({"error": "Bet must be a number."}, status=400)
+
 
     if bet <= 0:
         return Response({"error": "Invalid bet"}, status=400)
@@ -42,6 +50,8 @@ def spin_api(request):
     if win > 0:
         user.balance += win
         result = 1
+        history_entry = History(u_id=user, amount=win, cashout_time=timezone.now())
+        history_entry.save()
     else:
         user.balance -= bet
         result = 0

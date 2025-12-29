@@ -10,11 +10,11 @@
     <p>5x</p>
     <p>10x</p>
     <p>20x</p>
-    <p>BAL: {{ balance }} </p>
-    <form method="post" action="" style="border-style: dotted;">
+    <p>BAL: {{ balance }} </p><!-- djlint:off-->
+    <form method="post" action="" style="border-style: dotted;"><!-- djlint:on -->
         {% csrf_token %}
         <label for="quantity">How much are you willing to bet??</label>
-        <input type="number" name="quantity" value = {{ last_bet }} min="1" required><br>
+        <input type="number" name="quantity" value={{ last_bet }} min="1" required><br>
         <label>
             <input type="radio" name="choice" value="0" required {% if last_choice == 0%}checked{% endif %}> Heads
         </label><br>
@@ -35,6 +35,5 @@
     {% if error != None %}
        <p>{{ error }}</p>
     {% endif %}
-
 
 {% endblock %}

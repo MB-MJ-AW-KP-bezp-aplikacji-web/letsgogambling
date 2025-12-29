@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Welcome to LE CASINO - NEVER stop gambling!">
+    <meta name="keywords" content="casino, gambling, roulette, slots, games">
     <title>Welcome to the Casino!</title>
     <style>
         .side_box {
@@ -19,12 +21,11 @@
     </style>
 </head>
 <body>
-<main>
+<main><!-- djlint:off -->
     <p style="text-align: center; font-size: 60px; font-family: sans-serif;">
     LE CASINO
     </p>
-
-    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}" style="border-style: solid;">
+    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}" style="border-style: solid;"><!-- djlint:on -->
         {% csrf_token %}
         <div class="box">
             <label for="username"><b>Username</b></label>
@@ -34,20 +35,17 @@
             <button type="submit">Login</button>
         </div>
     </form>
-    <br>
-
-
-    {% if error != None %}
+    {% if error != None %}<!-- djlint:off -->
         <h3 style="color:red">{{ error }}</h3>
-    {% endif %}
+    {% endif %}<!-- djlint:on -->
 
     <form class="side_box" method="post" action="#">
-        {% csrf_token %}
-        <div style="border-style: solid;">
+        {% csrf_token %}<!-- djlint:off -->
+        <div style="border-style: solid;"><!-- djlint:on -->
             <h3>Write the secret PIN to join us</h3>
             <input name="pin" class="no-spinner" type="number" placeholder="Enter PIN" min="1000" max="9999" />
-            <button id="submit_pin" typr="submit">Submit</button>
-            <p id="error_msg" style="color:red; display:none;">Wrong PIN</p>
+            <button id="submit_pin" type="submit">Submit</button><!-- djlint:off -->
+            <p id="error_msg" style="color:red; display:none;">Wrong PIN</p><!-- djlint:on -->
         </div>
     </form>
 

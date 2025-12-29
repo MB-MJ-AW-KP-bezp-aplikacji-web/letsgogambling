@@ -16,6 +16,14 @@
 {% endif %} {% endcomment %}
 
 <p>Your balance: ${{ balance }}</p>
+<h1>Your epic wins:</h1>
+    <ul>
+    {% for win in wins %}
+        <li>{{ win.cashout_time }}: {{ win.amount }}</li>
+    {% empty %}
+        <p>No wins yet.</p>
+    {% endfor %}
+    </ul>
 
 {% comment %} <form method="POST" action="{% url 'magic_money_button' %}">
     {% csrf_token %}

@@ -50,9 +50,14 @@ fetch("/api/balance/")
     balanceEl.textContent = data.balance;
   });
 
-// Spin action
 spinBtn.addEventListener("click", () => {
-    const bet = document.getElementById("bet-amount").value;
+    const betInput = document.getElementById("bet-amount").value;
+    const bet = Number(betInput);
+
+    if (!Number.isFinite(bet) || bet < 1) {
+        messageEl.textContent = "Invalid bet amount.";
+        return;
+    }
 
     fetch("/api/spin/", {
         method: "POST",
@@ -73,7 +78,6 @@ spinBtn.addEventListener("click", () => {
             return;
         }
 
-        // Update symbols
         const rows = document.querySelectorAll("#slot-machine tr");
         data.machine.forEach((row, i) => {
             row.forEach((sym, j) => {
@@ -83,10 +87,8 @@ spinBtn.addEventListener("click", () => {
             });
         });
 
-        // Update balance
         balanceEl.textContent = data.balance;
 
-        // Show result
         if (data.win > 0) {
             messageEl.textContent = `WINNER! +$${data.win}`;
         } else {

@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Register an account at LE CASINO">
+    <meta name="keywords" content="casino, registration, signup, join">
     <title>Join the Casino!</title>
 </head>
 <body>
 <main>
     <h1>JOIN LE CASINO</h1>
-
-    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}" style="border-style: double;">
+    <!-- djlint:off -->
+    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}" style="border-style: double;"><!-- djlint:on -->
         {% csrf_token %}
         <div class="box">
             <label for="username"><b>Username</b></label>
@@ -21,9 +23,9 @@
         </div>
     </form>
 
-    {% if error != None %}
+    {% if error != None %}<!-- djlint:off -->
         <h3 style="color:red">{{ error }}</h3>
-    {% endif %}
+    {% endif %}<!-- djlint:on -->
 
 
 {#    <script>#}

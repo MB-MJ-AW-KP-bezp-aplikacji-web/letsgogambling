@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from random import randint
 from typing import List, Tuple
 from copy import deepcopy
-
+from secrets import randbelow
 REELS = [
     ["🍒", "🍒", "🍒", "🍒", "🍒", "🍇", "🍇", "🍇", "🍇", "🍊", "🍊", "🍊", "🍉", "🍉", "🍉", "💕", "💕", "💕", "🔔", "🔔", "⭐", "⭐", "💎", "7️⃣"],
     ["🍒", "🍒", "🍒", "🍒", "🍇", "🍇", "🍇", "🍇", "🍊", "🍊", "🍊", "🍊", "🍉", "🍉", "🍉", "💕", "💕", "💕", "🔔", "🔔", "⭐", "⭐", "💎", "7️⃣"],
@@ -44,7 +44,7 @@ def slots(request):
 def simulate_spin() -> List[List[str]]:
     machine = []
     for reel in REELS:
-        middle = randint(0, len(reel)-1)
+        middle = randbelow(len(reel))
         collumn = [reel[(middle - 1) % len(reel)],
                reel[middle],
                reel[(middle + 1) % len(reel)]
@@ -58,7 +58,7 @@ def simulate_spin() -> List[List[str]]:
 
 def check_win(machine: List[List[str]], bet: int) -> Tuple[List[List[str]], int, List[List[bool]]]:
     value = 0
-    add_value = lambda i: bet * SYMBOL_VALUES[machine[i][1]]
+    add_value = lambda i: bet * SYMBOL_VALUES[machine[i][1]] # noqa: E731
     machine_cpy = deepcopy(machine)
     strikes = [[False]*3 for _ in range(3)]
 
