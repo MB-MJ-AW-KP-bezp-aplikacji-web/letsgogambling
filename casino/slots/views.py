@@ -14,16 +14,18 @@ REELS = [
 #     ["🍒", "🍒", "🍒"],
 #     ["🍒", "🍒", "🍒"]
 # ]
+# Symbol probabilities per reel (approx): 🍒=17%, 🍇=17%, 🍊=15%, 🍉=14%, 💕=12%, 🔔=8%, ⭐=7%, 💎=4%, 7️⃣=4%
+# With 5 paylines, payouts adjusted for ~100% RTP (fair 50/50)
 SYMBOL_VALUES = {
-        "🍒": 10,
-        "🍇": 20,
-        "🍊": 30,
-        "🍉": 40,
-        "💕": 50,
-        "🔔": 300,
-        "⭐": 400,
-        "💎": 500,
-        "7️⃣": 1000,
+        "🍒": 3,      # Common - high probability
+        "🍇": 5,      # Common
+        "🍊": 7,      # Medium frequency
+        "🍉": 10,     # Medium frequency
+        "💕": 15,     # Medium-rare
+        "🔔": 35,     # Rare
+        "⭐": 70,     # Very rare
+        "💎": 100,    # Super rare
+        "7️⃣": 150,    # Jackpot - lowest probability
 }
 
 @login_required(login_url='/login/')

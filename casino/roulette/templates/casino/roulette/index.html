@@ -13,7 +13,7 @@
     }
 
     .timer {
-        font-family: 'Orbitron', sans-serif;
+        font-family: 'Courier New', Courier, monospace;
         font-size: 28px;
         font-weight: bold;
         color: #39ff14;
@@ -721,7 +721,7 @@
         const element = document.getElementById(`current-bet-${color}`);
         const amount = myBets[color];
         if (amount > 0) {
-            element.textContent = `Your bet: $${amount.toFixed(2)}`;
+            element.textContent = `Your bet: $${Math.floor(amount)}`;
             element.classList.add('has-bet');
         } else {
             element.textContent = 'Your bet: -';
@@ -731,7 +731,7 @@
 
     function updateTotalBetsDisplay(color) {
         const element = document.getElementById(`total-bets-${color}`);
-        element.textContent = `Total: $${totalBets[color].toFixed(0)}`;
+        element.textContent = `Total: $${Math.floor(totalBets[color])}`;
     }
 
     function resetBetDisplays() {
@@ -953,7 +953,7 @@
         addToHistory(colorName);
 
         if (yourPayout > 0) {
-            resultDiv.textContent = `${colorName} WINS! You won $${yourPayout.toFixed(2)}!`;
+            resultDiv.textContent = `${colorName} WINS! You won $${Math.floor(yourPayout)}!`;
             resultDiv.className = 'result-display winner';
         } else {
             resultDiv.textContent = `${colorName} wins.`;
@@ -1028,7 +1028,7 @@
             const betItem = document.createElement('div');
             betItem.className = 'tile-bet-item' + (isOwnBet ? ' own-bet' : '');
             betItem.setAttribute('data-username', username);
-            betItem.innerHTML = `<strong>${username}</strong>: $${amount}`;
+            betItem.innerHTML = `<strong>${username}</strong>: $${Math.floor(amount)}`;
             list.appendChild(betItem);
         });
     }
@@ -1042,7 +1042,7 @@
     }
 
     function updateBalance(newBalance) {
-        document.getElementById('balance').textContent = newBalance.toFixed(2);
+        document.getElementById('balance').textContent = Math.floor(newBalance);
     }
 
 
@@ -1160,9 +1160,12 @@
             document.getElementById('bet-amount-input').value = savedBet;
         }
 
-        // Save bet amount when it changes
+        // Save bet amount when it changes and ensure integer
         document.getElementById('bet-amount-input').addEventListener('change', () => {
-            localStorage.setItem('roulette_bet', document.getElementById('bet-amount-input').value);
+            const input = document.getElementById('bet-amount-input');
+            const val = parseFloat(input.value) || 0;
+            input.value = val > 0 ? Math.floor(val) : '';
+            localStorage.setItem('roulette_bet', input.value);
         });
     });
 </script>
