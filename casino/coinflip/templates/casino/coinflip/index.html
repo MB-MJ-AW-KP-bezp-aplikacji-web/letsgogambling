@@ -15,9 +15,6 @@
         border-color: #39ff14 !important;
         box-shadow: 0 0 20px #39ff14;
     }
-    .coin-option input[type="radio"] {
-        display: none;
-    }
     .quick-buttons {
         display: flex;
         flex-wrap: wrap;
@@ -77,6 +74,12 @@
     input[type=number] {
         -moz-appearance: textfield;
     }
+    .result-card {
+        display: none;
+    }
+    .result-card.show {
+        display: block;
+    }
 </style>
 {% endblock %}
 
@@ -88,12 +91,10 @@
     <div class="card-casino rounded-2xl p-6 mb-6">
         <div class="flex justify-between items-center mb-6">
             <span class="text-gray-400">Your Balance</span>
-            <span class="font-casino text-2xl text-neon-gold">${{ balance }}</span>
+            <span class="font-casino text-2xl text-neon-gold">$<span id="balance">0</span></span>
         </div>
 
-        <form method="post" action="" class="space-y-6">
-            {% csrf_token %}
-
+        <div class="space-y-6">
             <div>
                 <label class="block text-gray-400 text-sm mb-2">Bet Amount</label>
                 <div class="quick-buttons mb-3">
@@ -106,71 +107,80 @@
                     <button type="button" class="quick-btn modify" onclick="multiplyBet(2)">2X</button>
                     <button type="button" class="quick-btn allin" onclick="allIn()">MAX</button>
                 </div>
-                <input type="number" name="quantity" id="bet-amount" value="{{ last_bet }}" min="1" required
+                <input type="number" id="bet-amount" min="1"
                        class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 text-xl text-center">
             </div>
 
             <div>
                 <label class="block text-gray-400 text-sm mb-3">Choose Your Side</label>
                 <div class="grid grid-cols-2 gap-4">
-                    <label class="coin-option card-casino rounded-xl p-6 text-center border-2 border-gray-700 {% if last_choice == 0 %}selected{% endif %}">
-                        <input type="radio" name="choice" value="0" required {% if last_choice == 0 %}checked{% endif %}>
-                        <div class="text-4xl mb-2">🪙</div>
+                    <div class="coin-option card-casino rounded-xl p-6 text-center border-2 border-gray-700" data-choice="0">
+                        <div class="text-4xl mb-2">👑</div>
                         <div class="font-casino text-lg text-gray-300">HEADS</div>
-                    </label>
-                    <label class="coin-option card-casino rounded-xl p-6 text-center border-2 border-gray-700 {% if last_choice == 1 %}selected{% endif %}">
-                        <input type="radio" name="choice" value="1" required {% if last_choice == 1 %}checked{% endif %}>
-                        <div class="text-4xl mb-2">🪙</div>
+                    </div>
+                    <div class="coin-option card-casino rounded-xl p-6 text-center border-2 border-gray-700" data-choice="1">
+                        <div class="text-4xl mb-2">🦅</div>
                         <div class="font-casino text-lg text-gray-300">TAILS</div>
-                    </label>
+                    </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn-casino w-full py-4 rounded-lg font-casino text-xl text-white tracking-wider">
+            <button id="flip-btn" class="btn-casino w-full py-4 rounded-lg font-casino text-xl text-white tracking-wider">
                 FLIP COIN
             </button>
-        </form>
+        </div>
     </div>
 
-    {% if result != None %}
-    <div class="card-casino rounded-2xl p-6 text-center
-        {% if result == 1 %}border-2 border-green-500{% elif result == 0 %}border-2 border-red-500{% else %}border-2 border-yellow-500{% endif %}">
-        {% if result == 1 %}
-            <div class="text-5xl mb-3">🎉</div>
-            <p class="font-casino text-2xl text-neon-green text-glow-green">WINNER!</p>
-            <p class="text-gray-400 mt-2">+${{ last_bet }}</p>
-        {% elif result == 0 %}
-            <div class="text-5xl mb-3">💀</div>
-            <p class="font-casino text-2xl text-red-400">YOU LOSE</p>
-            <p class="text-gray-500 mt-2">Better luck next time</p>
-        {% else %}
-            <div class="text-5xl mb-3">💸</div>
-            <p class="font-casino text-2xl text-yellow-400">TOO BROKE</p>
-            <p class="text-gray-500 mt-2">Get more money first</p>
-        {% endif %}
+    <div id="result-card" class="result-card card-casino rounded-2xl p-6 text-center">
+        <div id="result-emoji" class="text-5xl mb-3"></div>
+        <p id="result-text" class="font-casino text-2xl"></p>
+        <p id="result-subtext" class="mt-2"></p>
     </div>
-    {% endif %}
-
-    {% if error != None %}
-    <div class="mt-4 p-4 bg-red-900/50 border border-red-500 rounded-lg">
-        <p class="text-red-400 text-center">{{ error }}</p>
-    </div>
-    {% endif %}
 </div>
 
 <script>
-document.querySelectorAll('.coin-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.coin-option').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-    });
+function getCookie(name) {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith(name + '='))
+        ?.split('=')[1];
+}
+const csrftoken = getCookie('csrftoken');
+
+const balanceEl = document.getElementById("balance");
+const betInput = document.getElementById("bet-amount");
+const flipBtn = document.getElementById("flip-btn");
+const resultCard = document.getElementById("result-card");
+const resultEmoji = document.getElementById("result-emoji");
+const resultText = document.getElementById("result-text");
+const resultSubtext = document.getElementById("result-subtext");
+
+let selectedChoice = null;
+
+// Restore last bet from localStorage
+const savedBet = localStorage.getItem('coinflip_bet');
+if (savedBet) {
+    betInput.value = savedBet;
+}
+
+// Save bet amount when it changes
+betInput.addEventListener('change', () => {
+    localStorage.setItem('coinflip_bet', betInput.value);
 });
 
-const betInput = document.getElementById('bet-amount');
-const userBalance = {{ balance }};
+// Fetch initial balance
+fetch("/api/balance/")
+    .then(res => res.json())
+    .then(data => {
+        balanceEl.textContent = data.balance;
+    });
+
+function getCurrentBalance() {
+    return parseFloat(balanceEl.textContent) || 0;
+}
 
 function setBetAmount(amount) {
     betInput.value = amount > 0 ? Math.floor(amount) : '';
+    localStorage.setItem('coinflip_bet', betInput.value);
 }
 
 function addToBet(amount) {
@@ -184,7 +194,114 @@ function multiplyBet(multiplier) {
 }
 
 function allIn() {
-    setBetAmount(userBalance);
+    setBetAmount(getCurrentBalance());
+}
+
+function updateFlipButton() {
+    const bet = Number(betInput.value);
+    const isValid = Number.isFinite(bet) && bet >= 1 && selectedChoice !== null;
+    flipBtn.disabled = !isValid;
+}
+
+// Coin option selection
+document.querySelectorAll('.coin-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.coin-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedChoice = parseInt(option.dataset.choice);
+        updateFlipButton();
+    });
+});
+
+// Update button state when bet changes
+betInput.addEventListener('input', updateFlipButton);
+
+// Initial button state
+updateFlipButton();
+
+// Flip button
+flipBtn.addEventListener("click", () => {
+    const bet = Number(betInput.value);
+    localStorage.setItem('coinflip_bet', betInput.value);
+
+    if (bet > getCurrentBalance()) {
+        showResult('broke', null);
+        return;
+    }
+
+    flipBtn.disabled = true;
+
+    fetch("/api/coinflip/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ bet: bet, choice: selectedChoice })
+    })
+    .then(res => res.json())
+    .then(data => {
+        flipBtn.disabled = false;
+
+        if (data.error) {
+            showResult('error', data.error);
+            return;
+        }
+
+        balanceEl.textContent = data.balance;
+
+        if (data.result === 1) {
+            showResult('win', data.win);
+        } else if (data.result === 0) {
+            showResult('lose', null);
+        } else {
+            showResult('broke', null);
+        }
+    })
+    .catch(err => {
+        flipBtn.disabled = false;
+        showResult('error', "Server error");
+    });
+});
+
+function showResult(type, value) {
+    resultCard.classList.add('show');
+    resultCard.className = 'result-card show card-casino rounded-2xl p-6 text-center';
+
+    switch(type) {
+        case 'win':
+            resultCard.classList.add('border-2', 'border-green-500');
+            resultEmoji.textContent = '🎉';
+            resultText.textContent = 'WINNER!';
+            resultText.className = 'font-casino text-2xl text-neon-green text-glow-green';
+            resultSubtext.textContent = '+$' + value;
+            resultSubtext.className = 'mt-2 text-gray-400';
+            break;
+        case 'lose':
+            resultCard.classList.add('border-2', 'border-red-500');
+            resultEmoji.textContent = '💀';
+            resultText.textContent = 'YOU LOSE';
+            resultText.className = 'font-casino text-2xl text-red-400';
+            resultSubtext.textContent = 'Better luck next time';
+            resultSubtext.className = 'mt-2 text-gray-500';
+            break;
+        case 'broke':
+            resultCard.classList.add('border-2', 'border-yellow-500');
+            resultEmoji.textContent = '💸';
+            resultText.textContent = 'TOO BROKE';
+            resultText.className = 'font-casino text-2xl text-yellow-400';
+            resultSubtext.textContent = 'Get more money first';
+            resultSubtext.className = 'mt-2 text-gray-500';
+            break;
+        case 'error':
+            resultCard.classList.add('border-2', 'border-red-500');
+            resultEmoji.textContent = '⚠️';
+            resultText.textContent = 'ERROR';
+            resultText.className = 'font-casino text-2xl text-red-400';
+            resultSubtext.textContent = value;
+            resultSubtext.className = 'mt-2 text-gray-500';
+            break;
+    }
 }
 </script>
 
