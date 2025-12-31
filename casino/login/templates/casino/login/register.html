@@ -2,48 +2,101 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Register an account at LE CASINO">
     <meta name="keywords" content="casino, registration, signup, join">
     <title>Join the Casino!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            green: '#39ff14',
+                            gold: '#ffd700',
+                            purple: '#9333ea',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        .font-casino { font-family: 'Orbitron', sans-serif; }
+        .text-glow-gold { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #ffd700; }
+        .text-glow-green { text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14; }
+        .btn-casino {
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-casino:hover {
+            box-shadow: 0 0 20px #9333ea, 0 0 40px #9333ea;
+            transform: translateY(-2px);
+        }
+        .input-casino {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid #374151;
+            transition: all 0.3s ease;
+        }
+        .input-casino:focus {
+            border-color: #39ff14;
+            box-shadow: 0 0 10px #39ff14;
+            outline: none;
+        }
+        .card-casino {
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid #374151;
+            backdrop-filter: blur(10px);
+        }
+    </style>
 </head>
-<body>
-<main>
-    <h1>JOIN LE CASINO</h1>
-    <!-- djlint:off -->
-    <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}" style="border-style: double;"><!-- djlint:on -->
-        {% csrf_token %}
-        <div class="box">
-            <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required></br>
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required></br>
-            <label for="password_rep"><b>Password again</b></label>
-            <input type="password" placeholder="Repeat Password" name="password_rep" required></br>
-            <button type="submit">Register</button>
+<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <h1 class="font-casino text-4xl md:text-5xl font-bold text-neon-gold text-glow-gold text-center mb-4 tracking-wider">
+            JOIN US
+        </h1>
+        <p class="text-center text-gray-400 mb-8">Create your account and start winning</p>
+
+        <div class="card-casino rounded-2xl p-8">
+            <h2 class="font-casino text-xl text-neon-green text-glow-green mb-6 tracking-wide">REGISTER</h2>
+            <form method="post" action="{% url 'register' %}?next={{ request.GET.next }}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="username" class="block text-gray-400 text-sm mb-2">Username</label>
+                    <input type="text" name="username" placeholder="Choose a username" required
+                           class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-gray-400 text-sm mb-2">Password</label>
+                    <input type="password" name="password" placeholder="Create a password" required
+                           class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500">
+                </div>
+                <div>
+                    <label for="password_rep" class="block text-gray-400 text-sm mb-2">Confirm Password</label>
+                    <input type="password" name="password_rep" placeholder="Repeat your password" required
+                           class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500">
+                </div>
+                <button type="submit" class="btn-casino w-full py-3 rounded-lg text-white font-bold tracking-wide mt-4">
+                    CREATE ACCOUNT
+                </button>
+            </form>
+
+            {% if error != None %}
+            <div class="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
+                <p class="text-red-400 text-sm">{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <div class="mt-6 text-center">
+                <a href="/login" class="text-gray-400 hover:text-neon-green transition-colors text-sm">
+                    Already have an account? Login here
+                </a>
+            </div>
         </div>
-    </form>
 
-    {% if error != None %}<!-- djlint:off -->
-        <h3 style="color:red">{{ error }}</h3>
-    {% endif %}<!-- djlint:on -->
-
-
-{#    <script>#}
-{#        let attempts = 0;#}
-{#        const max_attempts = 3;#}
-{#        const redirect = "#";#}
-{#        document.getElementById("submit_pin").addEventListener("click", function () {#}
-{#            let error_msg = document.getElementById("error_msg")#}
-{#            attempts++;#}
-{#            if (attempts >= max_attempts) {#}
-{#                window.location.href = redirect;#}
-{#            } else {#}
-{#                error_msg.style.display = "block";#}
-{#            }#}
-{#            document.getElementById("pin_input").value = "";#}
-{#        });#}
-{#    </script>#}
-
-</main>
+        <p class="text-center text-gray-600 text-sm mt-8 font-casino tracking-widest">NEVER STOP GAMBLING</p>
+    </div>
 </body>
 </html>

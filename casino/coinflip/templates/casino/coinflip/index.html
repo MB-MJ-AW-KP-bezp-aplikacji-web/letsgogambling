@@ -2,34 +2,100 @@
 
 {% block title %}Casino: Coin Flip{% endblock %}
 
-{% block content %}
+{% block extra_head %}
+<style>
+    .coin-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .coin-option:hover {
+        transform: scale(1.05);
+    }
+    .coin-option.selected {
+        border-color: #39ff14 !important;
+        box-shadow: 0 0 20px #39ff14;
+    }
+    .coin-option input[type="radio"] {
+        display: none;
+    }
+</style>
+{% endblock %}
 
-    <h2>Coin Flip</h2>
-    <p>50/50 chance - Double your money!</p>
-    <p>BAL: {{ balance }} </p><!-- djlint:off-->
-    <form method="post" action="" style="border-style: dotted;"><!-- djlint:on -->
-        {% csrf_token %}
-        <label for="quantity">How much are you willing to bet??</label>
-        <input type="number" name="quantity" value={{ last_bet }} min="1" required><br>
-        <label>
-            <input type="radio" name="choice" value="0" required {% if last_choice == 0%}checked{% endif %}> Heads
-        </label><br>
-        <label>
-            <input type="radio" name="choice" value="1" required {% if last_choice == 1%}checked{% endif %}> Tails
-        </label><br><br>
-        <button id="coinflip" type="submit">FLIP COIN</button>
-    </form>
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <h1 class="font-casino text-4xl text-center text-neon-gold text-glow-gold mb-4 tracking-wider">COIN FLIP</h1>
+    <p class="text-center text-gray-400 mb-8">50/50 chance - Double your money!</p>
+
+    <div class="card-casino rounded-2xl p-6 mb-6">
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-gray-400">Your Balance</span>
+            <span class="font-casino text-2xl text-neon-gold">${{ balance }}</span>
+        </div>
+
+        <form method="post" action="" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-gray-400 text-sm mb-2">Bet Amount</label>
+                <input type="number" name="quantity" value="{{ last_bet }}" min="1" required
+                       class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 text-xl text-center">
+            </div>
+
+            <div>
+                <label class="block text-gray-400 text-sm mb-3">Choose Your Side</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="coin-option card-casino rounded-xl p-6 text-center border-2 border-gray-700 {% if last_choice == 0 %}selected{% endif %}">
+                        <input type="radio" name="choice" value="0" required {% if last_choice == 0 %}checked{% endif %}>
+                        <div class="text-4xl mb-2">🪙</div>
+                        <div class="font-casino text-lg text-gray-300">HEADS</div>
+                    </label>
+                    <label class="coin-option card-casino rounded-xl p-6 text-center border-2 border-gray-700 {% if last_choice == 1 %}selected{% endif %}">
+                        <input type="radio" name="choice" value="1" required {% if last_choice == 1 %}checked{% endif %}>
+                        <div class="text-4xl mb-2">🪙</div>
+                        <div class="font-casino text-lg text-gray-300">TAILS</div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-casino w-full py-4 rounded-lg font-casino text-xl text-white tracking-wider">
+                FLIP COIN
+            </button>
+        </form>
+    </div>
+
     {% if result != None %}
+    <div class="card-casino rounded-2xl p-6 text-center
+        {% if result == 1 %}border-2 border-green-500{% elif result == 0 %}border-2 border-red-500{% else %}border-2 border-yellow-500{% endif %}">
         {% if result == 1 %}
-            U WINNER (+${{ last_bet }})
+            <div class="text-5xl mb-3">🎉</div>
+            <p class="font-casino text-2xl text-neon-green text-glow-green">WINNER!</p>
+            <p class="text-gray-400 mt-2">+${{ last_bet }}</p>
         {% elif result == 0 %}
-            U LOSER
+            <div class="text-5xl mb-3">💀</div>
+            <p class="font-casino text-2xl text-red-400">YOU LOSE</p>
+            <p class="text-gray-500 mt-2">Better luck next time</p>
         {% else %}
-            U TOO BROKE
+            <div class="text-5xl mb-3">💸</div>
+            <p class="font-casino text-2xl text-yellow-400">TOO BROKE</p>
+            <p class="text-gray-500 mt-2">Get more money first</p>
         {% endif %}
+    </div>
     {% endif %}
+
     {% if error != None %}
-       <p>{{ error }}</p>
+    <div class="mt-4 p-4 bg-red-900/50 border border-red-500 rounded-lg">
+        <p class="text-red-400 text-center">{{ error }}</p>
+    </div>
     {% endif %}
+</div>
+
+<script>
+document.querySelectorAll('.coin-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.coin-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+</script>
 
 {% endblock %}

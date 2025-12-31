@@ -2,34 +2,83 @@
 
 {% block title %}Slots{% endblock %}
 
+{% block extra_head %}
+<style>
+    .slot-cell {
+        width: 80px;
+        height: 80px;
+        font-size: 3rem;
+        text-align: center;
+        vertical-align: middle;
+        background: rgba(17, 24, 39, 0.8);
+        border: 2px solid #374151;
+        transition: all 0.3s ease;
+    }
+    .slot-cell.strike {
+        text-decoration: line-through;
+        background: rgba(57, 255, 20, 0.2);
+        border-color: #39ff14;
+        box-shadow: 0 0 10px #39ff14;
+    }
+    .slot-machine {
+        border: 3px solid #9333ea;
+        box-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(31, 41, 55, 0.9) 100%);
+    }
+    @keyframes spin {
+        0% { transform: rotateX(0deg); }
+        100% { transform: rotateX(360deg); }
+    }
+    .spinning .slot-cell {
+        animation: spin 0.1s linear infinite;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>SLOTS</h1>
+<div class="max-w-2xl mx-auto">
+    <h1 class="font-casino text-4xl text-center text-neon-gold text-glow-gold mb-8 tracking-wider">SLOTS</h1>
 
-<p>BAL: <span id="balance">0</span></p>
+    <div class="card-casino rounded-2xl p-6 mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-gray-400">Your Balance</span>
+            <span class="font-casino text-2xl text-neon-gold">$<span id="balance">0</span></span>
+        </div>
 
-<div id="slot-machine">
-  <h1>
-  <table>
-    <tbody>
-      {% for _ in "123" %}
-      <tr>
-        {% for _ in "123" %}
-          <td class="slot-symbol">❓</td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</h1>
+        <div id="slot-machine" class="slot-machine mx-auto w-fit mb-6">
+            <table class="border-separate border-spacing-2">
+                <tbody>
+                    {% for _ in "123" %}
+                    <tr>
+                        {% for _ in "123" %}
+                        <td class="slot-cell rounded-lg">❓</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="message" class="text-center text-xl font-casino mb-6 h-8"></div>
+
+        <div class="flex items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+                <label class="text-gray-400">Bet:</label>
+                <input id="bet-amount" type="number" min="1" value="1"
+                       class="input-casino w-24 px-3 py-2 rounded-lg text-center text-xl text-gray-100">
+            </div>
+            <button id="spin-btn" class="btn-casino px-8 py-3 rounded-lg font-casino text-xl text-white tracking-wider">
+                SPIN
+            </button>
+        </div>
+    </div>
+
+    <div class="text-center text-gray-500 text-sm">
+        <p>Match 3 in a row, column, or diagonal to win!</p>
+    </div>
 </div>
-
-<hr>
-
-<label>Bet:</label>
-<input id="bet-amount" type="number" min="1" value="1">
-<button id="spin-btn">SPIN</button>
-
-<p id="message"></p>
 
 <script>
 function getCookie(name) {
@@ -41,7 +90,7 @@ const csrftoken = getCookie('csrftoken');
 
 const balanceEl = document.getElementById("balance");
 const messageEl = document.getElementById("message");
-const symbolsEl = document.querySelectorAll(".slot-symbol");
+const slotMachine = document.getElementById("slot-machine");
 const spinBtn = document.getElementById("spin-btn");
 
 fetch("/api/balance/")
@@ -56,8 +105,12 @@ spinBtn.addEventListener("click", () => {
 
     if (!Number.isFinite(bet) || bet < 1) {
         messageEl.textContent = "Invalid bet amount.";
+        messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-red-400";
         return;
     }
+
+    spinBtn.disabled = true;
+    slotMachine.classList.add("spinning");
 
     fetch("/api/spin/", {
         method: "POST",
@@ -69,34 +122,50 @@ spinBtn.addEventListener("click", () => {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.error) {
-            messageEl.textContent = data.error;
-            return;
-        }
-        if (!data.machine) {
-            messageEl.textContent = "TOO BROKE!";
-            return;
-        }
+        setTimeout(() => {
+            slotMachine.classList.remove("spinning");
+            spinBtn.disabled = false;
 
-        const rows = document.querySelectorAll("#slot-machine tr");
-        data.machine.forEach((row, i) => {
-            row.forEach((sym, j) => {
-                const cell = rows[i].children[j];
-                cell.textContent = sym;
-                cell.style.textDecoration = data.strikes[i][j] ? "line-through" : "none";
+            if (data.error) {
+                messageEl.textContent = data.error;
+                messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-red-400";
+                return;
+            }
+            if (!data.machine) {
+                messageEl.textContent = "TOO BROKE!";
+                messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-red-400";
+                return;
+            }
+
+            const rows = document.querySelectorAll("#slot-machine tr");
+            data.machine.forEach((row, i) => {
+                row.forEach((sym, j) => {
+                    const cell = rows[i].children[j];
+                    cell.textContent = sym;
+                    if (data.strikes[i][j]) {
+                        cell.classList.add("strike");
+                    } else {
+                        cell.classList.remove("strike");
+                    }
+                });
             });
-        });
 
-        balanceEl.textContent = data.balance;
+            balanceEl.textContent = data.balance;
 
-        if (data.win > 0) {
-            messageEl.textContent = `WINNER! +$${data.win}`;
-        } else {
-            messageEl.textContent = "U LOSER";
-        }
+            if (data.win > 0) {
+                messageEl.textContent = `WINNER! +$${data.win}`;
+                messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-neon-green text-glow-green";
+            } else {
+                messageEl.textContent = "NO WIN";
+                messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-gray-500";
+            }
+        }, 500);
     })
     .catch(err => {
-        messageEl.textContent = "Server Error: " + err;
+        slotMachine.classList.remove("spinning");
+        spinBtn.disabled = false;
+        messageEl.textContent = "Server Error";
+        messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-red-400";
     });
 });
 </script>
