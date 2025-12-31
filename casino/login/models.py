@@ -17,7 +17,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(username, password, **extra_fields)
 
 class User(AbstractBaseUser):
-    id = models.IntegerField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     username = models.CharField(unique=True)
     balance = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
