@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Casino: Coin Flip{% endblock %}
+
+{% block content %}
+
+    <h2>Coin Flip</h2>
+    <p>50/50 chance - Double your money!</p>
+    <p>BAL: {{ balance }} </p><!-- djlint:off-->
+    <form method="post" action="" style="border-style: dotted;"><!-- djlint:on -->
+        {% csrf_token %}
+        <label for="quantity">How much are you willing to bet??</label>
+        <input type="number" name="quantity" value={{ last_bet }} min="1" required><br>
+        <label>
+            <input type="radio" name="choice" value="0" required {% if last_choice == 0%}checked{% endif %}> Heads
+        </label><br>
+        <label>
+            <input type="radio" name="choice" value="1" required {% if last_choice == 1%}checked{% endif %}> Tails
+        </label><br><br>
+        <button id="coinflip" type="submit">FLIP COIN</button>
+    </form>
+    {% if result != None %}
+        {% if result == 1 %}
+            U WINNER (+${{ last_bet }})
+        {% elif result == 0 %}
+            U LOSER
+        {% else %}
+            U TOO BROKE
+        {% endif %}
+    {% endif %}
+    {% if error != None %}
+       <p>{{ error }}</p>
+    {% endif %}
+
+{% endblock %}
