@@ -93,6 +93,12 @@
     input[type=number] {
         -moz-appearance: textfield;
     }
+    #spin-btn:disabled {
+        background: #374151;
+        cursor: not-allowed;
+        box-shadow: none;
+        color: #6b7280;
+    }
 </style>
 {% endblock %}
 
@@ -164,6 +170,7 @@ const messageEl = document.getElementById("message");
 const slotMachine = document.getElementById("slot-machine");
 const spinBtn = document.getElementById("spin-btn");
 const betInput = document.getElementById("bet-amount");
+let isSpinning = false;
 
 // Restore last bet from localStorage
 const savedBet = localStorage.getItem('slots_bet');
@@ -206,6 +213,8 @@ fetch("/api/balance/")
   });
 
 spinBtn.addEventListener("click", () => {
+    if (isSpinning) return;
+
     const bet = Number(betInput.value);
     localStorage.setItem('slots_bet', betInput.value);
 
@@ -221,6 +230,7 @@ spinBtn.addEventListener("click", () => {
         return;
     }
 
+    isSpinning = true;
     spinBtn.disabled = true;
     slotMachine.classList.add("spinning");
 
@@ -236,6 +246,7 @@ spinBtn.addEventListener("click", () => {
     .then(data => {
         setTimeout(() => {
             slotMachine.classList.remove("spinning");
+            isSpinning = false;
             spinBtn.disabled = false;
 
             if (data.error) {
@@ -275,6 +286,7 @@ spinBtn.addEventListener("click", () => {
     })
     .catch(err => {
         slotMachine.classList.remove("spinning");
+        isSpinning = false;
         spinBtn.disabled = false;
         messageEl.textContent = "Server Error";
         messageEl.className = "text-center text-xl font-casino mb-6 h-8 text-red-400";

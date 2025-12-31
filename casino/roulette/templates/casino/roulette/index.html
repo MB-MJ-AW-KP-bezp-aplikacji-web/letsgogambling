@@ -296,21 +296,22 @@
     }
 
     .wheel {
-        width: 100%;
-        height: 100%;
+        width: 400px;
+        height: 400px;
         border-radius: 50%;
-        border: 8px solid #1f2937;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 0 40px rgba(147, 51, 234, 0.4), 0 0 80px rgba(147, 51, 234, 0.2), inset 0 0 30px rgba(0,0,0,0.5);
-        transform-origin: center center;
-        box-sizing: border-box;
+        box-shadow: 0 0 0 8px #1f2937, 0 0 40px rgba(147, 51, 234, 0.4), 0 0 80px rgba(147, 51, 234, 0.2), inset 0 0 30px rgba(0,0,0,0.5);
+        transform-origin: 200px 200px;
+        will-change: transform;
+        backface-visibility: hidden;
+        transform: translateZ(0);
     }
 
     #wheel-canvas {
         display: block;
-        width: 100%;
-        height: 100%;
+        width: 400px;
+        height: 400px;
     }
 
     .wheel-pointer {
@@ -926,8 +927,8 @@
         const finalRotation = targetOffset + k * 360;
 
         const animation = wheel.animate([
-            { transform: `rotate(${currentWheelRotation}deg)` },
-            { transform: `rotate(${finalRotation}deg)` }
+            { transform: `translateZ(0) rotate(${currentWheelRotation}deg)` },
+            { transform: `translateZ(0) rotate(${finalRotation}deg)` }
         ], {
             duration: 3000,
             easing: 'cubic-bezier(0.17, 0.67, 0.12, 0.99)',
@@ -935,7 +936,7 @@
         });
 
         animation.onfinish = () => {
-            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            wheel.style.transform = `translateZ(0) rotate(${finalRotation}deg)`;
             animation.cancel();
         };
 
