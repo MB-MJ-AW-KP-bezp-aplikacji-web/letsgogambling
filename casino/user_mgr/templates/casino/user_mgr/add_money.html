@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Get Money{% endblock %}
 
+{% block extra_head %}
+<style>
+    .text-glow-purple { text-shadow: 0 0 10px #9333ea; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-3xl mx-auto">
     <h1 class="font-casino text-4xl text-center text-neon-gold text-glow-gold mb-8 tracking-wider">
@@ -19,7 +25,7 @@
 
     <div class="grid md:grid-cols-2 gap-8">
         <div class="card-casino rounded-2xl p-6">
-            <h2 class="font-casino text-xl text-neon-purple mb-6 tracking-wide" style="text-shadow: 0 0 10px #9333ea;">
+            <h2 class="font-casino text-xl text-neon-purple mb-6 tracking-wide text-glow-purple">
                 MINING CHALLENGE
             </h2>
 

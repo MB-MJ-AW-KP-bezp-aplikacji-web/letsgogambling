@@ -27,6 +27,8 @@
         .font-casino { font-family: 'Orbitron', sans-serif; }
         .text-glow-gold { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #ffd700; }
         .text-glow-green { text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14; }
+        .text-glow-purple { text-shadow: 0 0 10px #9333ea; }
+        .border-neon-purple { border-color: #9333ea; }
         .btn-casino {
             background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
             transition: all 0.3s ease;
@@ -90,8 +92,8 @@
                 {% endif %}
             </div>
 
-            <div class="card-casino rounded-2xl p-8 border-neon-purple" style="border-color: #9333ea;">
-                <h2 class="font-casino text-xl text-neon-purple mb-6 tracking-wide" style="text-shadow: 0 0 10px #9333ea;">NEW HERE?</h2>
+            <div class="card-casino rounded-2xl p-8 border-neon-purple">
+                <h2 class="font-casino text-xl text-neon-purple mb-6 tracking-wide text-glow-purple">NEW HERE?</h2>
                 <p class="text-gray-400 mb-6">Enter the secret PIN to unlock registration</p>
                 <form method="post" action="#" class="space-y-4">
                     {% csrf_token %}
