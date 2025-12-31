@@ -8,34 +8,28 @@
         max-width: 1600px;
         margin: 0 auto;
         padding: 20px;
-    }
-
-    .game-header {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 40px;
-        margin-bottom: 20px;
-        padding: 15px 20px;
-        background: rgba(17, 24, 39, 0.9);
-        border: 1px solid #374151;
-        border-radius: 12px;
+        transform: scale(0.9);
+        transform-origin: top center;
     }
 
     .timer {
         font-family: 'Orbitron', sans-serif;
-        font-size: 32px;
+        font-size: 28px;
         font-weight: bold;
         color: #39ff14;
         text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
-        min-width: 120px;
         text-align: center;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 10px;
+        border: 1px solid #374151;
     }
 
     .history-panel {
         position: absolute;
         right: 0;
-        top: 0;
+        top: -30px;
         width: 200px;
         background: rgba(17, 24, 39, 0.95);
         border-radius: 12px;
@@ -351,41 +345,6 @@
         color: #ef4444;
     }
 
-    .status-message {
-        text-align: center;
-        padding: 10px 20px;
-        margin-top: 12px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 14px;
-        font-family: 'Orbitron', sans-serif;
-        letter-spacing: 1px;
-    }
-
-    .status-message.betting {
-        background: rgba(59, 130, 246, 0.2);
-        border: 1px solid #3b82f6;
-        color: #60a5fa;
-    }
-
-    .status-message.spinning {
-        background: rgba(245, 158, 11, 0.2);
-        border: 1px solid #f59e0b;
-        color: #fbbf24;
-        animation: pulse 0.5s ease-in-out infinite alternate;
-    }
-
-    .status-message.error {
-        background: rgba(239, 68, 68, 0.2);
-        border: 1px solid #ef4444;
-        color: #f87171;
-    }
-
-    @keyframes pulse {
-        from { opacity: 0.8; }
-        to { opacity: 1; }
-    }
-
     .betting-section {
         display: flex;
         gap: 12px;
@@ -576,10 +535,6 @@
 <div class="roulette-container">
     <h1 class="font-casino text-4xl text-center text-neon-gold text-glow-gold mb-6 tracking-wider">ROULETTE</h1>
 
-    <div class="game-header">
-        <div class="timer" id="timer">-</div>
-    </div>
-
     <div class="game-area">
         <div class="bet-controls" id="bet-controls">
             <div class="bet-controls-balance">
@@ -609,12 +564,10 @@
                 </div>
             </div>
             <div class="result-display" id="result-display"></div>
-            <div class="status-message betting" id="status-message">
-                Connecting to game...
-            </div>
         </div>
 
         <div class="history-panel">
+            <div class="timer" id="timer">-</div>
             <div class="current-winner">
                 <div class="label">Winner</div>
                 <div class="color-display none" id="winner-display"></div>
@@ -789,7 +742,6 @@
 
         ws.onopen = function(e) {
             console.log('WebSocket connected');
-            updateStatus('Connected! Waiting for next round...', 'betting');
             ws.send(JSON.stringify({
                 type: 'get_state'
             }));
@@ -802,12 +754,10 @@
 
         ws.onerror = function(error) {
             console.error('WebSocket error:', error);
-            updateStatus('Connection error!', 'error');
         };
 
         ws.onclose = function(event) {
             console.log('WebSocket closed, reconnecting in 2s...');
-            updateStatus('Disconnected, reconnecting...', 'error');
             setTimeout(connectWebSocket, 2000);
         };
     }
@@ -864,7 +814,6 @@
         if (data.status === 'SPINNING') {
             disableBetting();
             document.getElementById('timer').textContent = 'SPIN!';
-            updateStatus('SPINNING! Good luck!', 'spinning');
             document.getElementById('result-display').textContent = '';
             document.getElementById('result-display').className = 'result-display';
         } else if (data.status === 'BETTING') {
@@ -872,7 +821,6 @@
             document.getElementById('result-display').textContent = '';
             document.getElementById('result-display').className = 'result-display';
             startTimer(data.time_remaining);
-            updateStatus('Place your bets!', 'betting');
         }
     }
 
@@ -895,7 +843,6 @@
         }
 
         startTimer(timeRemaining);
-        updateStatus('Place your bets!', 'betting');
     }
 
     function loadHistoryFromServer(history) {
@@ -945,7 +892,6 @@
 
     function enterSpinningPhase(winningSlot, winningColor) {
         disableBetting();
-        updateStatus('SPINNING! Good luck!', 'spinning');
 
         if (timerInterval) {
             clearInterval(timerInterval);
@@ -1004,8 +950,6 @@
             resultDiv.textContent = `${colorName} wins.`;
             resultDiv.className = 'result-display loser';
         }
-
-        updateStatus(`Round ended - ${colorName} won!`, 'betting');
     }
 
     function placeBet(color) {
@@ -1090,11 +1034,6 @@
         document.getElementById('balance').textContent = newBalance.toFixed(2);
     }
 
-    function updateStatus(message, type) {
-        const statusDiv = document.getElementById('status-message');
-        statusDiv.textContent = message;
-        statusDiv.className = 'status-message ' + type;
-    }
 
     function enableBetting() {
         document.querySelectorAll('.color-bet-tile').forEach(tile => {
