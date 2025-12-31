@@ -13,11 +13,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'casino.settings')
 from django.core.asgi import get_asgi_application
 django_asgi_app = get_asgi_application()
 
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-from channels.security.websocket import AllowedHostsOriginValidator
-from casino.roulette.routing import websocket_urlpatterns
-
+from channels.routing import ProtocolTypeRouter, URLRouter # noqa
+from channels.auth import AuthMiddlewareStack # noqa
+from channels.security.websocket import AllowedHostsOriginValidator # noqa
+from casino.roulette.routing import websocket_urlpatterns # noqa
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
