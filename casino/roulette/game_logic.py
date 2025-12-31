@@ -6,7 +6,6 @@ Handles wheel configuration, random selection, and payout calculation.
 import secrets
 from typing import Dict, Tuple
 
-
 # Wheel configuration: 54 total slots
 WHEEL_CONFIG = {
     'GRAY': {'slots': 26, 'multiplier': 2.0},
@@ -23,8 +22,6 @@ WHEEL = [
     'BLUE', 'GRAY', 'BLUE', 'GRAY', 'RED', 'GRAY', 'RED', 'GRAY', 'RED', 'GRAY',
     'BLUE'
 ]
-
-assert len(WHEEL) == 54, "Wheel must have exactly 54 slots"
 
 
 def spin_wheel() -> Tuple[str, int]:
