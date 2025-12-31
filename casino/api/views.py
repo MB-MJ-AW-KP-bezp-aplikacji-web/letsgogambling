@@ -1,4 +1,5 @@
 # from django.shortcuts import render
+from django.db import transaction
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -25,52 +26,78 @@ def get_balance(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def spin_api(request):
-    user = request.user
     raw_bet = request.data.get("bet")
+    raw_count = request.data.get("count", 1)
 
     try:
         bet = int(raw_bet)
+        count = int(raw_count)
     except (TypeError, ValueError):
         return Response({"error": "Bet must be a number."}, status=400)
-
 
     if bet <= 0:
         return Response({"error": "Invalid bet"}, status=400)
 
-    if bet > user.balance:
-        return Response({
-            "result": 2,
-            "machine": None,
-            "balance": user.balance,
-            "win": 0
-        })
+    if count < 1 or count > 5:
+        return Response({"error": "Count must be between 1 and 5"}, status=400)
 
-    machine = simulate_spin()
-    machine, win, strikes = check_win(machine, bet)
+    total_bet = bet * count
 
-    if win > 0:
-        user.balance += win
-        result = 1
-        history_entry = History(u_id=user, amount=win, cashout_time=timezone.now())
-        history_entry.save()
-    else:
-        user.balance -= bet
-        result = 0
+    with transaction.atomic():
+        user = User.objects.select_for_update().get(pk=request.user.pk)
 
-    user.save()
+        if total_bet > user.balance:
+            return Response({
+                "results": [],
+                "balance": user.balance,
+                "total_win": 0,
+                "error": "Insufficient balance"
+            })
+
+        # Deduct total bet first (atomic)
+        user.balance -= total_bet
+
+        results = []
+        total_win = 0
+
+        for _ in range(count):
+            machine = simulate_spin()
+            machine, win, strikes = check_win(machine, bet)
+
+            if win > 0:
+                total_win += win
+                results.append({
+                    "machine": machine,
+                    "strikes": strikes,
+                    "win": win,
+                    "result": 1
+                })
+            else:
+                results.append({
+                    "machine": machine,
+                    "strikes": strikes,
+                    "win": 0,
+                    "result": 0
+                })
+
+        # Add total winnings
+        user.balance += total_win
+
+        if total_win > 0:
+            history_entry = History(u_id=user, amount=total_win, cashout_time=timezone.now())
+            history_entry.save()
+
+        user.save()
 
     return Response({
-        "result": result,
-        "machine": machine,
-        "strikes": strikes,
+        "results": results,
         "balance": user.balance,
-        "win": win
+        "total_win": total_win
     })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def coinflip_api(request):
-    user = request.user
     raw_bet = request.data.get("bet")
     raw_choice = request.data.get("choice")
 
@@ -86,27 +113,32 @@ def coinflip_api(request):
     if usr_choice not in [0, 1]:
         return Response({"error": "Invalid choice"}, status=400)
 
-    if bet > user.balance:
-        return Response({
-            "result": 2,
-            "balance": user.balance,
-            "win": 0,
-            "flip_result": None
-        })
+    with transaction.atomic():
+        user = User.objects.select_for_update().get(pk=request.user.pk)
 
-    flip_result = choice([0, 1])
-    if flip_result == usr_choice:
-        user.balance += bet
-        result = 1
-        win = bet
-        history_entry = History(u_id=user, amount=win, cashout_time=timezone.now())
-        history_entry.save()
-    else:
+        if bet > user.balance:
+            return Response({
+                "result": 2,
+                "balance": user.balance,
+                "win": 0,
+                "flip_result": None
+            })
+
+        # Deduct bet first (atomic)
         user.balance -= bet
-        result = 0
-        win = 0
 
-    user.save()
+        flip_result = choice([0, 1])
+        if flip_result == usr_choice:
+            user.balance += bet * 2  # Return bet + win
+            result = 1
+            win = bet
+            history_entry = History(u_id=user, amount=win, cashout_time=timezone.now())
+            history_entry.save()
+        else:
+            result = 0
+            win = 0
+
+        user.save()
 
     return Response({
         "result": result,
