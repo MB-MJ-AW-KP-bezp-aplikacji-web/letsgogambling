@@ -72,11 +72,15 @@
                     Find a suffix that, when combined with the challenge <span class="text-neon-green font-mono">"{{ chal }}"</span>,
                     produces a hash with leading zeros.
                 </p>
+                <p class="text-neon-purple">
+                    Submit your suffix as <strong>base64 encoded</strong>.
+                </p>
                 <div class="bg-gray-800 rounded-lg p-4 font-mono text-xs">
                     <p class="text-gray-500 mb-2">Example:</p>
                     <p>challenge = "MONEY"</p>
                     <p>suffix = "XYZ"</p>
                     <p class="text-neon-green">SHA256("MONEYXYZ") = "0000..."</p>
+                    <p class="text-gray-500 mt-2">submit = base64("XYZ") = "WFla"</p>
                     <p class="text-neon-gold mt-2">→ 4 zeros = $$$ payout</p>
                 </div>
             </div>
