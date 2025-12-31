@@ -3,32 +3,45 @@
 {% block title %}Casino Profile{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ request.user.username }}!</h1>
+<div class="max-w-2xl mx-auto">
+    <h1 class="font-casino text-4xl text-center text-neon-gold text-glow-gold mb-8 tracking-wider">
+        PROFILE
+    </h1>
 
-{% comment %} {% if messages %}
-    {% for message in messages %}
-        {% if message.tags == "error" %}
-            <p style="color: red;">{{ message }}</p>
+    <div class="card-casino rounded-2xl p-8 mb-8">
+        <div class="text-center mb-8">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 mx-auto mb-4 flex items-center justify-center">
+                <span class="text-4xl">🎰</span>
+            </div>
+            <h2 class="font-casino text-2xl text-gray-100 tracking-wide">{{ request.user.username }}</h2>
+        </div>
+
+        <div class="bg-gray-800/50 rounded-xl p-6 text-center">
+            <p class="text-gray-400 text-sm mb-1">Current Balance</p>
+            <p class="font-casino text-4xl text-neon-gold text-glow-gold">${{ balance }}</p>
+        </div>
+    </div>
+
+    <div class="card-casino rounded-2xl p-8">
+        <h2 class="font-casino text-xl text-neon-green text-glow-green mb-6 tracking-wide flex items-center gap-3">
+            <span>🏆</span> YOUR EPIC WINS
+        </h2>
+
+        {% if wins %}
+        <div class="space-y-3">
+            {% for win in wins %}
+            <div class="flex justify-between items-center bg-gray-800/50 rounded-lg p-4">
+                <span class="text-gray-400 text-sm">{{ win.cashout_time }}</span>
+                <span class="font-casino text-neon-green">+${{ win.amount }}</span>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-            <p style="color: green;">{{ message }}</p>
+        <div class="text-center py-8">
+            <div class="text-5xl mb-4">🎲</div>
+            <p class="text-gray-500">No wins yet. Start playing to see your victories here!</p>
+        </div>
         {% endif %}
-    {% endfor %}
-{% endif %} {% endcomment %}
-
-<p>Your balance: ${{ balance }}</p>
-<h1>Your epic wins:</h1>
-    <ul>
-    {% for win in wins %}
-        <li>{{ win.cashout_time }}: {{ win.amount }}</li>
-    {% empty %}
-        <p>No wins yet.</p>
-    {% endfor %}
-    </ul>
-
-{% comment %} <form method="POST" action="{% url 'magic_money_button' %}">
-    {% csrf_token %}
-    <button type="submit">Money +$100</button>
-</form> {% endcomment %}
-
-<h2>Other</h2>
+    </div>
+</div>
 {% endblock %}

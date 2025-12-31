@@ -2,9 +2,8 @@
 
 {% block title %}Casino: Multiplayer Roulette{% endblock %}
 
-{% block content %}
+{% block extra_head %}
 <style>
-    /* Roulette Game Styles */
     .roulette-container {
         max-width: 1600px;
         margin: 0 auto;
@@ -17,138 +16,146 @@
         align-items: center;
         gap: 40px;
         margin-bottom: 20px;
-        padding: 10px 15px;
-        background-color: #f5f5f5;
-        border-radius: 8px;
+        padding: 15px 20px;
+        background: rgba(17, 24, 39, 0.9);
+        border: 1px solid #374151;
+        border-radius: 12px;
     }
 
     .timer {
-        font-size: 28px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 32px;
         font-weight: bold;
-        color: #d32f2f;
-        min-width: 100px;
+        color: #39ff14;
+        text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
+        min-width: 120px;
         text-align: center;
     }
 
-    /* History Panel - Fixed to right */
     .history-panel {
         position: absolute;
         right: 0;
         top: 0;
-        width: 180px;
-        background: #f5f5f5;
-        border-radius: 8px;
-        padding: 12px;
-        border: 1px solid #ddd;
+        width: 200px;
+        background: rgba(17, 24, 39, 0.95);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid #374151;
     }
 
     .history-panel-title {
-        font-size: 12px;
-        color: #666;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 11px;
+        color: #9ca3af;
         text-transform: uppercase;
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        letter-spacing: 2px;
     }
 
     .current-winner {
         text-align: center;
-        padding: 15px 10px;
-        margin-bottom: 10px;
-        background: #fff;
-        border-radius: 6px;
-        border: 1px solid #ddd;
+        padding: 16px 12px;
+        margin-bottom: 12px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 10px;
+        border: 1px solid #374151;
     }
 
     .current-winner .label {
-        font-size: 11px;
-        color: #666;
+        font-size: 10px;
+        color: #6b7280;
         text-transform: uppercase;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
     }
 
     .current-winner .color-display {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
-        margin: 8px auto;
-        border: 3px solid #333;
+        margin: 10px auto;
+        border: 3px solid #1f2937;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
 
-    .current-winner .color-display.gray { background: #808080; }
-    .current-winner .color-display.red { background: #e53935; }
-    .current-winner .color-display.blue { background: #1e88e5; }
-    .current-winner .color-display.gold { background: #ffd700; }
-    .current-winner .color-display.none { background: #eee; border-color: #ccc; }
+    .current-winner .color-display.gray { background: #6b7280; box-shadow: 0 0 15px #6b7280; }
+    .current-winner .color-display.red { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
+    .current-winner .color-display.blue { background: #3b82f6; box-shadow: 0 0 15px #3b82f6; }
+    .current-winner .color-display.gold { background: #ffd700; box-shadow: 0 0 20px #ffd700; }
+    .current-winner .color-display.none { background: #374151; box-shadow: none; }
 
     .current-winner .color-name {
+        font-family: 'Orbitron', sans-serif;
         font-size: 14px;
         font-weight: bold;
-        color: #333;
+        color: #e5e7eb;
     }
 
     .history-list {
-        background: #fff;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        padding: 8px;
-        margin-bottom: 10px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 10px;
+        border: 1px solid #374151;
+        padding: 10px;
+        margin-bottom: 12px;
     }
 
     .history-list-title {
-        font-size: 11px;
-        color: #666;
+        font-size: 10px;
+        color: #6b7280;
         text-transform: uppercase;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         text-align: center;
+        letter-spacing: 1px;
     }
 
     .history-items {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
+        gap: 6px;
         justify-content: center;
     }
 
     .history-empty {
-        color: #999;
+        color: #4b5563;
         font-size: 11px;
     }
 
     .history-item {
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
-        border: 2px solid #333;
-        font-size: 9px;
+        border: 2px solid #1f2937;
+        font-size: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-weight: bold;
-        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     }
 
-    .history-item.gray { background: #808080; }
-    .history-item.red { background: #e53935; }
-    .history-item.blue { background: #1e88e5; }
+    .history-item.gray { background: #6b7280; }
+    .history-item.red { background: #ef4444; }
+    .history-item.blue { background: #3b82f6; }
     .history-item.gold { background: #ffd700; color: #000; text-shadow: none; }
 
     .round-info {
         text-align: center;
-        padding: 8px;
-        background: #fff;
-        border-radius: 6px;
-        border: 1px solid #ddd;
+        padding: 10px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 8px;
+        border: 1px solid #374151;
         font-size: 12px;
-        color: #555;
+        color: #9ca3af;
     }
 
     .round-info span {
         font-weight: bold;
-        color: #333;
+        color: #ffd700;
+        font-family: 'Orbitron', sans-serif;
     }
 
-    /* Main Game Area - Wheel centered, bet controls on left */
     .game-area {
         display: flex;
         justify-content: center;
@@ -157,118 +164,127 @@
         position: relative;
     }
 
-    /* Bet Controls Panel - Fixed to left */
     .bet-controls {
         position: absolute;
         left: 0;
         top: 0;
-        width: 180px;
-        background: #f5f5f5;
-        border-radius: 8px;
-        padding: 12px;
-        border: 1px solid #ddd;
+        width: 200px;
+        background: rgba(17, 24, 39, 0.95);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid #374151;
     }
 
     .bet-controls-balance {
         text-align: center;
-        padding: 10px;
-        margin-bottom: 10px;
-        background: #fff;
-        border-radius: 6px;
-        border: 1px solid #ddd;
+        padding: 16px;
+        margin-bottom: 12px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 10px;
+        border: 1px solid #374151;
     }
 
     .bet-controls-balance .label {
-        font-size: 12px;
-        color: #666;
+        font-size: 11px;
+        color: #6b7280;
         text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .bet-controls-balance .amount {
-        font-size: 22px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 24px;
         font-weight: bold;
-        color: #2e7d32;
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     }
 
     .bet-amount-display {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 10px;
-        margin-top: 10px;
+        background: rgba(31, 41, 55, 0.8);
+        border: 1px solid #374151;
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: 12px;
     }
 
     .bet-amount-display input {
         width: 100%;
         background: transparent;
         border: none;
-        color: #333;
+        color: #39ff14;
+        font-family: 'Orbitron', sans-serif;
         font-size: 24px;
         font-weight: bold;
         text-align: center;
         outline: none;
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
     }
 
     .bet-amount-display input::placeholder {
-        color: #999;
+        color: #4b5563;
+        text-shadow: none;
     }
 
     .quick-buttons {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 10px;
+        gap: 6px;
+        margin-top: 12px;
     }
 
     .quick-btn {
         flex: 1 1 auto;
-        min-width: 40px;
-        padding: 6px 4px;
+        min-width: 44px;
+        padding: 8px 6px;
         font-size: 11px;
         font-weight: bold;
         border: none;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
         transition: all 0.2s;
+        font-family: 'Orbitron', sans-serif;
     }
 
     .quick-btn.add {
-        background: #4caf50;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: white;
     }
 
     .quick-btn.add:hover {
-        background: #45a049;
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        transform: translateY(-1px);
     }
 
     .quick-btn.modify {
-        background: #2196f3;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
     }
 
     .quick-btn.modify:hover {
-        background: #1976d2;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        transform: translateY(-1px);
     }
 
     .quick-btn.clear {
-        background: #f44336;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
     .quick-btn.clear:hover {
-        background: #d32f2f;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        transform: translateY(-1px);
     }
 
     .quick-btn.allin {
-        background: #ff9800;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: white;
     }
 
     .quick-btn.allin:hover {
-        background: #f57c00;
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        transform: translateY(-1px);
     }
 
-    /* Spinning Wheel */
     .wheel-section {
         display: flex;
         flex-direction: column;
@@ -280,92 +296,116 @@
         position: relative;
         width: 400px;
         height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .wheel {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 10px solid #333;
+        border: 8px solid #1f2937;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        box-shadow: 0 0 40px rgba(147, 51, 234, 0.4), 0 0 80px rgba(147, 51, 234, 0.2), inset 0 0 30px rgba(0,0,0,0.5);
+        transform-origin: center center;
+        box-sizing: border-box;
+    }
+
+    #wheel-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
     }
 
     .wheel-pointer {
         position: absolute;
-        top: 5px;
+        top: 0px;
         left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 12px solid transparent;
-        border-right: 12px solid transparent;
-        border-top: 30px solid #ff0000;
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+        border-top: 35px solid #39ff14;
         z-index: 10;
-        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+        filter: drop-shadow(0 0 10px #39ff14);
     }
 
     .result-display {
-        margin-top: 15px;
+        margin-top: 20px;
+        font-family: 'Orbitron', sans-serif;
         font-size: 20px;
         font-weight: bold;
         min-height: 30px;
+        color: #9ca3af;
     }
 
     .result-display.winner {
-        color: #4caf50;
+        color: #39ff14;
+        text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
     }
 
     .result-display.loser {
-        color: #f44336;
+        color: #ef4444;
     }
 
     .status-message {
         text-align: center;
-        padding: 8px 15px;
-        margin-top: 10px;
-        border-radius: 6px;
+        padding: 10px 20px;
+        margin-top: 12px;
+        border-radius: 8px;
         font-weight: bold;
         font-size: 14px;
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 1px;
     }
 
     .status-message.betting {
-        background-color: #e3f2fd;
-        color: #1976d2;
+        background: rgba(59, 130, 246, 0.2);
+        border: 1px solid #3b82f6;
+        color: #60a5fa;
     }
 
     .status-message.spinning {
-        background-color: #fff3e0;
-        color: #f57c00;
+        background: rgba(245, 158, 11, 0.2);
+        border: 1px solid #f59e0b;
+        color: #fbbf24;
+        animation: pulse 0.5s ease-in-out infinite alternate;
     }
 
     .status-message.error {
-        background-color: #ffebee;
-        color: #c62828;
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #f87171;
     }
 
-    /* Color Tiles - Single Row */
+    @keyframes pulse {
+        from { opacity: 0.8; }
+        to { opacity: 1; }
+    }
+
     .betting-section {
         display: flex;
-        gap: 10px;
-        margin: 20px 0;
+        gap: 12px;
+        margin: 24px 0;
         justify-content: center;
     }
 
     .color-bet-tile {
         flex: 1;
         max-width: 280px;
-        border: 3px solid #ddd;
-        border-radius: 10px;
-        padding: 12px;
+        border: 2px solid;
+        border-radius: 16px;
+        padding: 16px;
         text-align: center;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        background: rgba(17, 24, 39, 0.8);
     }
 
     .color-bet-tile:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-4px);
     }
 
     .color-bet-tile.disabled {
@@ -374,189 +414,173 @@
     }
 
     .color-bet-tile.gray {
-        background: linear-gradient(135deg, #808080 0%, #a0a0a0 100%);
-        border-color: #606060;
+        border-color: #6b7280;
+        box-shadow: 0 0 20px rgba(107, 114, 128, 0.3);
     }
+    .color-bet-tile.gray:hover { box-shadow: 0 0 30px rgba(107, 114, 128, 0.5); }
 
     .color-bet-tile.red {
-        background: linear-gradient(135deg, #e53935 0%, #f44336 100%);
-        border-color: #c62828;
+        border-color: #ef4444;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
     }
+    .color-bet-tile.red:hover { box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); }
 
     .color-bet-tile.blue {
-        background: linear-gradient(135deg, #1e88e5 0%, #2196f3 100%);
-        border-color: #1565c0;
+        border-color: #3b82f6;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
+    .color-bet-tile.blue:hover { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
 
     .color-bet-tile.gold {
-        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-        border-color: #daa520;
+        border-color: #ffd700;
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
     }
+    .color-bet-tile.gold:hover { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
 
     .tile-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
 
     .color-name {
+        font-family: 'Orbitron', sans-serif;
         font-size: 18px;
         font-weight: bold;
-        color: white;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        text-shadow: 0 0 10px currentColor;
     }
 
-    .color-bet-tile.gold .color-name {
-        color: #000;
-        text-shadow: none;
-    }
+    .color-bet-tile.gray .color-name { color: #9ca3af; }
+    .color-bet-tile.red .color-name { color: #f87171; }
+    .color-bet-tile.blue .color-name { color: #60a5fa; }
+    .color-bet-tile.gold .color-name { color: #ffd700; }
 
     .multiplier {
-        font-size: 20px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 22px;
         font-weight: bold;
-        color: white;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }
 
-    .color-bet-tile.gold .multiplier {
-        color: #000;
-        text-shadow: none;
-    }
+    .color-bet-tile.gray .multiplier { color: #9ca3af; }
+    .color-bet-tile.red .multiplier { color: #f87171; }
+    .color-bet-tile.blue .multiplier { color: #60a5fa; }
+    .color-bet-tile.gold .multiplier { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
 
     .current-bet {
-        background: rgba(0,0,0,0.25);
-        border-radius: 4px;
-        padding: 5px;
-        margin-bottom: 8px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 10px;
         font-size: 12px;
-        color: white;
+        color: #9ca3af;
     }
 
     .current-bet.has-bet {
-        background: rgba(76, 175, 80, 0.5);
+        background: rgba(34, 197, 94, 0.3);
+        color: #4ade80;
         font-weight: bold;
-    }
-
-    .color-bet-tile.gold .current-bet {
-        background: rgba(0,0,0,0.15);
-        color: #000;
-    }
-
-    .color-bet-tile.gold .current-bet.has-bet {
-        background: rgba(76, 175, 80, 0.5);
-        color: #006400;
     }
 
     .bet-button {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
+        font-family: 'Orbitron', sans-serif;
         font-size: 14px;
         font-weight: bold;
         color: white;
-        background-color: rgba(0,0,0,0.35);
-        border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 5px;
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+        border: none;
+        border-radius: 8px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        letter-spacing: 2px;
     }
 
     .bet-button:hover {
-        background-color: rgba(0,0,0,0.5);
-        border-color: rgba(255,255,255,0.5);
-    }
-
-    .color-bet-tile.gold .bet-button {
-        color: #000;
-        border-color: rgba(0,0,0,0.3);
+        box-shadow: 0 0 20px #9333ea, 0 0 40px #9333ea;
+        transform: translateY(-2px);
     }
 
     .bet-button:disabled {
-        background-color: rgba(0,0,0,0.15);
-        border-color: rgba(255,255,255,0.1);
+        background: #374151;
         cursor: not-allowed;
-        color: rgba(255,255,255,0.5);
+        box-shadow: none;
+        color: #6b7280;
     }
 
     .tile-separator {
         height: 1px;
-        background: rgba(255,255,255,0.3);
-        margin: 10px 0;
+        background: linear-gradient(90deg, transparent, #374151, transparent);
+        margin: 12px 0;
     }
 
-    .color-bet-tile.gold .tile-separator {
-        background: rgba(0,0,0,0.2);
-    }
-
-    /* Tile Total Bets */
     .tile-total-bets {
-        background: rgba(0,0,0,0.3);
-        border-radius: 4px;
-        padding: 6px;
-        margin-bottom: 6px;
+        background: rgba(31, 41, 55, 0.8);
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 8px;
         font-size: 13px;
         font-weight: bold;
-        color: white;
+        color: #e5e7eb;
     }
 
-    .color-bet-tile.gold .tile-total-bets {
-        background: rgba(0,0,0,0.2);
-        color: #000;
-    }
-
-    /* Tile Bets List */
     .tile-bets-list {
-        background: rgba(0,0,0,0.2);
-        border-radius: 4px;
-        padding: 4px;
+        background: rgba(31, 41, 55, 0.6);
+        border-radius: 6px;
+        padding: 6px;
         max-height: 100px;
         overflow-y: auto;
         min-height: 40px;
     }
 
-    .color-bet-tile.gold .tile-bets-list {
-        background: rgba(0,0,0,0.1);
+    .tile-bets-list::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .tile-bets-list::-webkit-scrollbar-track {
+        background: #1f2937;
+        border-radius: 2px;
+    }
+
+    .tile-bets-list::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 2px;
     }
 
     .tile-bet-item {
-        padding: 3px 5px;
-        margin: 2px 0;
-        background: rgba(255,255,255,0.15);
-        border-radius: 3px;
+        padding: 4px 8px;
+        margin: 3px 0;
+        background: rgba(55, 65, 81, 0.6);
+        border-radius: 4px;
         font-size: 11px;
-        color: white;
+        color: #d1d5db;
         text-align: left;
     }
 
     .tile-bet-item.own-bet {
-        background: rgba(76, 175, 80, 0.5);
+        background: rgba(34, 197, 94, 0.3);
+        color: #4ade80;
         font-weight: bold;
     }
 
-    .color-bet-tile.gold .tile-bet-item {
-        color: #000;
-    }
-
     .tile-bets-empty {
-        color: rgba(255,255,255,0.5);
+        color: #4b5563;
         font-size: 11px;
-        padding: 8px;
-    }
-
-    .color-bet-tile.gold .tile-bets-empty {
-        color: rgba(0,0,0,0.4);
+        padding: 10px;
     }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="roulette-container">
-    <!-- Game Header -->
+    <h1 class="font-casino text-4xl text-center text-neon-gold text-glow-gold mb-6 tracking-wider">ROULETTE</h1>
+
     <div class="game-header">
         <div class="timer" id="timer">-</div>
     </div>
 
-    <!-- Main Game Area -->
     <div class="game-area">
-        <!-- Bet Controls Panel -->
         <div class="bet-controls" id="bet-controls">
             <div class="bet-controls-balance">
                 <div class="label">Balance</div>
@@ -566,10 +590,10 @@
                 <button class="quick-btn clear" onclick="setBetAmount(0)">CLR</button>
                 <button class="quick-btn add" onclick="addToBet(10)">+10</button>
                 <button class="quick-btn add" onclick="addToBet(100)">+100</button>
-                <button class="quick-btn add" onclick="addToBet(1000)">+1k</button>
-                <button class="quick-btn add" onclick="addToBet(10000)">+10k</button>
+                <button class="quick-btn add" onclick="addToBet(1000)">+1K</button>
+                <button class="quick-btn add" onclick="addToBet(10000)">+10K</button>
                 <button class="quick-btn modify" onclick="multiplyBet(0.5)">½</button>
-                <button class="quick-btn modify" onclick="multiplyBet(2)">2x</button>
+                <button class="quick-btn modify" onclick="multiplyBet(2)">2X</button>
                 <button class="quick-btn allin" onclick="allIn()">MAX</button>
             </div>
             <div class="bet-amount-display">
@@ -577,7 +601,6 @@
             </div>
         </div>
 
-        <!-- Wheel Section -->
         <div class="wheel-section">
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
@@ -591,7 +614,6 @@
             </div>
         </div>
 
-        <!-- History Panel -->
         <div class="history-panel">
             <div class="current-winner">
                 <div class="label">Winner</div>
@@ -610,7 +632,6 @@
         </div>
     </div>
 
-    <!-- Color Tiles - Single Row -->
     <div class="betting-section" id="betting-section">
         <div class="color-bet-tile gray" data-color="GRAY">
             <div class="tile-header">
@@ -940,7 +961,7 @@
     function spinWheelToSlot(winningSlot) {
         const wheel = document.getElementById('wheel');
         const degreesPerSlot = 360 / 54;
-        const slotCenterAngle = winningSlot * degreesPerSlot + degreesPerSlot;
+        const slotCenterAngle = winningSlot * degreesPerSlot + (degreesPerSlot / 2);
 
         let targetOffset = 270 - slotCenterAngle;
         if (targetOffset < 0) targetOffset += 360;
@@ -950,7 +971,7 @@
         const k = Math.ceil((minFinalRotation - targetOffset) / 360);
         const finalRotation = targetOffset + k * 360;
 
-        wheel.animate([
+        const animation = wheel.animate([
             { transform: `rotate(${currentWheelRotation}deg)` },
             { transform: `rotate(${finalRotation}deg)` }
         ], {
@@ -958,6 +979,11 @@
             easing: 'cubic-bezier(0.17, 0.67, 0.12, 0.99)',
             fill: 'forwards'
         });
+
+        animation.onfinish = () => {
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            animation.cancel();
+        };
 
         currentWheelRotation = finalRotation;
     }
@@ -1119,9 +1145,9 @@
 
         const colors = {
             'GOLD': '#ffd700',
-            'BLUE': '#1e88e5',
-            'GRAY': '#808080',
-            'RED': '#e53935'
+            'BLUE': '#3b82f6',
+            'GRAY': '#6b7280',
+            'RED': '#ef4444'
         };
 
         const wheel = [
@@ -1144,22 +1170,33 @@
             ctx.closePath();
             ctx.fillStyle = colors[colorName];
             ctx.fill();
-            ctx.strokeStyle = '#222';
+            ctx.strokeStyle = '#111827';
             ctx.lineWidth = 1;
             ctx.stroke();
         });
 
         ctx.beginPath();
         ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#1a1a1a';
+        ctx.fillStyle = '#111827';
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
-        ctx.fillStyle = '#333';
+        ctx.arc(centerX, centerY, 45, 0, 2 * Math.PI);
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 45);
+        gradient.addColorStop(0, '#374151');
+        gradient.addColorStop(1, '#1f2937');
+        ctx.fillStyle = gradient;
         ctx.fill();
-        ctx.strokeStyle = '#555';
+        ctx.strokeStyle = '#4b5563';
         ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = '#9333ea';
+        ctx.fill();
+        ctx.strokeStyle = '#a855f7';
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
 

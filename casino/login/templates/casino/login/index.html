@@ -2,80 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Welcome to LE CASINO - NEVER stop gambling!">
     <meta name="keywords" content="casino, gambling, roulette, slots, games">
     <title>Welcome to the Casino!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            green: '#39ff14',
+                            gold: '#ffd700',
+                            purple: '#9333ea',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        .side_box {
-            position: absolute;
-            right: 0px;
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        .font-casino { font-family: 'Orbitron', sans-serif; }
+        .text-glow-gold { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #ffd700; }
+        .text-glow-green { text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14; }
+        .btn-casino {
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-casino:hover {
+            box-shadow: 0 0 20px #9333ea, 0 0 40px #9333ea;
+            transform: translateY(-2px);
+        }
+        .input-casino {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid #374151;
+            transition: all 0.3s ease;
+        }
+        .input-casino:focus {
+            border-color: #39ff14;
+            box-shadow: 0 0 10px #39ff14;
+            outline: none;
+        }
+        .card-casino {
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid #374151;
+            backdrop-filter: blur(10px);
         }
         input[type=number].no-spinner::-webkit-inner-spin-button,
-        input[type=number].no-spinner::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+        input[type=number].no-spinner::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-        input[type=number].no-spinner {
-        -moz-appearance: textfield;
-        }
+        input[type=number].no-spinner { -moz-appearance: textfield; }
     </style>
 </head>
-<body>
-<main><!-- djlint:off -->
-    <p style="text-align: center; font-size: 60px; font-family: sans-serif;">
-    LE CASINO
-    </p>
-    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}" style="border-style: solid;"><!-- djlint:on -->
-        {% csrf_token %}
-        <div class="box">
-            <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required></br>
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required></br>
-            <button type="submit">Login</button>
+<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-4xl">
+        <h1 class="font-casino text-5xl md:text-7xl font-bold text-neon-gold text-glow-gold text-center mb-12 tracking-wider">
+            LE CASINO
+        </h1>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="card-casino rounded-2xl p-8">
+                <h2 class="font-casino text-xl text-neon-green text-glow-green mb-6 tracking-wide">LOGIN</h2>
+                <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label for="username" class="block text-gray-400 text-sm mb-2">Username</label>
+                        <input type="text" name="username" placeholder="Enter Username" required
+                               class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-gray-400 text-sm mb-2">Password</label>
+                        <input type="password" name="password" placeholder="Enter Password" required
+                               class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500">
+                    </div>
+                    <button type="submit" class="btn-casino w-full py-3 rounded-lg text-white font-bold tracking-wide mt-4">
+                        ENTER
+                    </button>
+                </form>
+                {% if error != None %}
+                <div class="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
+                    <p class="text-red-400 text-sm">{{ error }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-casino rounded-2xl p-8 border-neon-purple" style="border-color: #9333ea;">
+                <h2 class="font-casino text-xl text-neon-purple mb-6 tracking-wide" style="text-shadow: 0 0 10px #9333ea;">NEW HERE?</h2>
+                <p class="text-gray-400 mb-6">Enter the secret PIN to unlock registration</p>
+                <form method="post" action="#" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Secret PIN</label>
+                        <input name="pin" type="number" class="no-spinner input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500"
+                               placeholder="Enter 4-digit PIN" min="1000" max="9999">
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-lg font-bold tracking-wide mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/50 transition-all">
+                        UNLOCK
+                    </button>
+                    <p id="error_msg" class="text-red-400 text-sm hidden">Wrong PIN</p>
+                </form>
+            </div>
         </div>
-    </form>
-    {% if error != None %}<!-- djlint:off -->
-        <h3 style="color:red">{{ error }}</h3>
-    {% endif %}<!-- djlint:on -->
 
-    <form class="side_box" method="post" action="#">
-        {% csrf_token %}<!-- djlint:off -->
-        <div style="border-style: solid;"><!-- djlint:on -->
-            <h3>Write the secret PIN to join us</h3>
-            <input name="pin" class="no-spinner" type="number" placeholder="Enter PIN" min="1000" max="9999" />
-            <button id="submit_pin" type="submit">Submit</button><!-- djlint:off -->
-            <p id="error_msg" style="color:red; display:none;">Wrong PIN</p><!-- djlint:on -->
-        </div>
-    </form>
-
-    {% comment %} <div class="side_box">
-        <h3>Write the secret PIN to join us</h3>
-        <input class="no-spinner" type="number" id="pin_input" placeholder="Enter PIN" min="1000" max="9999" />
-        <button id="submit_pin">Submit</button>
-        <p id="error_msg" style="color:red; display:none;">Wrong PIN</p>
-    </div> {% endcomment %}
-
-    {% comment %} <script>
-        let attempts = 0;
-        const max_attempts = 3;
-        const redirect = "http://localhost:8000/";
-        document.getElementById("submit_pin").addEventListener("click", function() {
-            const pin_inpit = document.getElementById("pin_input");
-            const error_msg = document.getElementById("error_msg");
-            attempts++;
-            if (attempts >= max_attempts) {
-                window.location.href = redirect;
-                error_msg.style.display = "none";
-                pin_input.value = "";
-                attempts = 0;
-                return;
-            }
-            error_msg.style.display = "block";
-            pin_input.value = "";
-        });
-    </script> {% endcomment %}
-
-</main>
+        <p class="text-center text-gray-600 text-sm mt-8 font-casino tracking-widest">NEVER STOP GAMBLING</p>
+    </div>
 </body>
 </html>
