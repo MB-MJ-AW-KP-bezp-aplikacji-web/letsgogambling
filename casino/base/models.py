@@ -6,7 +6,7 @@ from casino.login.models import User
 class Codes(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField()
-    value = models.FloatField()
+    value = models.IntegerField()
 
 class UsedCodes(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -16,5 +16,5 @@ class UsedCodes(models.Model):
 class History(models.Model):
     id = models.IntegerField(primary_key=True)
     u_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.FloatField()
+    amount = models.IntegerField()
     cashout_time = models.DateTimeField()
