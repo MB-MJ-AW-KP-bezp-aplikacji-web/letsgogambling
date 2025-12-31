@@ -528,6 +528,14 @@
         font-size: 11px;
         padding: 10px;
     }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
 </style>
 {% endblock %}
 
@@ -547,7 +555,7 @@
                 <button class="quick-btn add" onclick="addToBet(100)">+100</button>
                 <button class="quick-btn add" onclick="addToBet(1000)">+1K</button>
                 <button class="quick-btn add" onclick="addToBet(10000)">+10K</button>
-                <button class="quick-btn modify" onclick="multiplyBet(0.5)">½</button>
+                <button class="quick-btn modify" onclick="multiplyBet(0.5)">1/2</button>
                 <button class="quick-btn modify" onclick="multiplyBet(2)">2X</button>
                 <button class="quick-btn allin" onclick="allIn()">MAX</button>
             </div>
@@ -965,6 +973,8 @@
             return;
         }
 
+        localStorage.setItem('roulette_bet', amount);
+
         ws.send(JSON.stringify({
             type: 'place_bet',
             color: color,
@@ -1142,6 +1152,17 @@
     window.addEventListener('DOMContentLoaded', () => {
         drawWheel();
         connectWebSocket();
+
+        // Restore last bet from localStorage
+        const savedBet = localStorage.getItem('roulette_bet');
+        if (savedBet) {
+            document.getElementById('bet-amount-input').value = savedBet;
+        }
+
+        // Save bet amount when it changes
+        document.getElementById('bet-amount-input').addEventListener('change', () => {
+            localStorage.setItem('roulette_bet', document.getElementById('bet-amount-input').value);
+        });
     });
 </script>
 
