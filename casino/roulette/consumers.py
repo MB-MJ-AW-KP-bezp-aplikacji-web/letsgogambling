@@ -7,6 +7,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
+from django.db import transaction
 from .models import GameRound, Bet
 
 
@@ -241,39 +242,45 @@ class RouletteConsumer(AsyncWebsocketConsumer):
         Returns dict with 'success' boolean and additional data
         """
         try:
-            round_obj = GameRound.objects.filter(status='BETTING').order_by('-round_number').first()
+            # Use transaction with row-level locking to prevent race conditions
+            with transaction.atomic():
+                # Lock the user row for update to prevent concurrent balance modifications
+                from casino.login.models import User
+                user = User.objects.select_for_update().get(pk=user.pk)
 
-            if not round_obj:
-                return {'success': False, 'error': 'No active betting round'}
+                round_obj = GameRound.objects.filter(status='BETTING').order_by('-round_number').first()
 
-            if user.balance < amount:
-                return {'success': False, 'error': 'Insufficient balance'}
+                if not round_obj:
+                    return {'success': False, 'error': 'No active betting round'}
 
-            existing_bet = Bet.objects.filter(
-                user=user,
-                round=round_obj,
-                color=color
-            ).first()
+                if user.balance < amount:
+                    return {'success': False, 'error': 'Insufficient balance'}
 
-            user.balance -= amount
-            user.save()
-
-            if existing_bet:
-                existing_bet.amount += amount
-                existing_bet.save()
-            else:
-                Bet.objects.create(
+                existing_bet = Bet.objects.filter(
                     user=user,
                     round=round_obj,
-                    color=color,
-                    amount=amount,
-                )
+                    color=color
+                ).first()
 
-            return {
-                'success': True,
-                'round_number': round_obj.round_number,
-                'new_balance': user.balance,
-            }
+                user.balance -= amount
+                user.save()
+
+                if existing_bet:
+                    existing_bet.amount += amount
+                    existing_bet.save()
+                else:
+                    Bet.objects.create(
+                        user=user,
+                        round=round_obj,
+                        color=color,
+                        amount=amount,
+                    )
+
+                return {
+                    'success': True,
+                    'round_number': round_obj.round_number,
+                    'new_balance': user.balance,
+                }
 
         except Exception as e:
             return {'success': False, 'error': str(e)}
