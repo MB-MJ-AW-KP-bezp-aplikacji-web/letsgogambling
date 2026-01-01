@@ -53,9 +53,10 @@ def register_user(request):
             request.session['error'] = ' \n'.join(e.messages)
             return redirect('register')
 
-        User.objects.create_user(username, password)
+        user = User.objects.create_user(username, password)
+        login(request, user)
         request.session['error'] = None
-        return redirect("login_page")
+        return redirect("/")
     return render(request, "casino/login/register.html", {'error': request.session.get('error')})
 
 

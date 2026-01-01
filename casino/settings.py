@@ -126,7 +126,7 @@ if not DEBUG:
         {
             'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
             'OPTIONS': {
-                'min_length': 12,  # Minimum 12 characters
+                'min_length': 10,
             }
         },
         {
