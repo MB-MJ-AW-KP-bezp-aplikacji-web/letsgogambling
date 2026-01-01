@@ -49,3 +49,6 @@ LICENSE
 
 # Other
 .DS_Store
+
+# Local PostgreSQL data
+postgres/
