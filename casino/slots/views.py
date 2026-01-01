@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from typing import List, Tuple
 from copy import deepcopy
@@ -28,6 +29,7 @@ SYMBOL_VALUES = {
         "7️⃣": 150,    # Jackpot - lowest probability
 }
 
+@ensure_csrf_cookie
 @login_required(login_url='/login/')
 def slots(request):
     user = request.user
@@ -80,48 +82,3 @@ def check_win(machine: List[List[str]], bet: int) -> Tuple[List[List[str]], int,
             strikes[j][2-j] = True
 
     return machine_cpy, value, strikes
-
-# if __name__ == "__main__":
-#     print(check_win(simulate_spin(), 10))
-
-# @login_required(login_url='/login/')
-# def spin(request):
-#     result = None
-#     machine = None
-#     err = None
-#     win = None
-#     user = request.user
-#     if request.method == "POST":
-#         quantity = 0
-#         try:
-#             quantity = int(request.POST.get("quantity"))
-#         except Exception:
-#             err = "Invalid Amount"
-#         if err is None:
-#             request.session["bet"] = quantity
-#             if quantity > user.balance or user.balance <= 0:
-#                 result = 2
-#             if result != 2:
-#                 machine = simulate_spin()
-#                 machine, win, strikes = check_win(machine, quantity)
-#                 if win > 0:
-#                     result = 1
-#                     user.balance += win
-#                 else:
-#                     result = 0
-#                     user.balance -= quantity
-#                 user.save()
-#     bet = request.session.get("bet")
-#     miner_data = {
-#         "balance": user.balance,
-#         "machine": None,
-#         "result": result,
-#         "error": err,
-#         "win": win,
-#         "last_bet": bet if bet is not None else 10
-#     }
-#     if machine is None:
-#         miner_data["machine"] = [[ "❓" for _ in range(3)] for _ in range(3)]
-#     else:
-#         miner_data["machine"] = machine
-#     return render(request, "casino/slots/index.html", miner_data)

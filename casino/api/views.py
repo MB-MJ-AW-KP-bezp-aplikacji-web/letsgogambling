@@ -1,21 +1,13 @@
-# from django.shortcuts import render
+
 from django.db import transaction
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import generics
+
 from casino.base.models import User, History
 from casino.slots.views import simulate_spin, check_win
 from secrets import choice
-from .serializers import UserSerializer
-# from datetime import datetime
-
-# Create your views here.
-@permission_classes([IsAuthenticated])
-class ListCreate(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

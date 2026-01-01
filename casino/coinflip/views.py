@@ -1,6 +1,8 @@
 from secrets import choice
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.db import transaction
+from casino.login.models import User
 
 
 @login_required(login_url='/login/')
@@ -19,17 +21,27 @@ def coinflip(request):
         if err is None:
             request.session["bet"] = quantity
             request.session["choice"] = usr_choice
-            if quantity > user.balance or user.balance <= 0:
-                result = 2
-            if result != 2:
-                rand = choice([0, 1])
-                if rand == usr_choice:
-                    result = 1
-                    user.balance += quantity
-                else:
-                    result = 0
-                    user.balance -= quantity
-                user.save()
+
+            # Use transaction with row-level locking to prevent race conditions
+            with transaction.atomic():
+                # Lock the user row for update
+                locked_user = User.objects.select_for_update().get(pk=user.pk)
+
+                if quantity > locked_user.balance or locked_user.balance <= 0:
+                    result = 2
+                if result != 2:
+                    rand = choice([0, 1])
+                    if rand == usr_choice:
+                        result = 1
+                        locked_user.balance += quantity
+                    else:
+                        result = 0
+                        locked_user.balance -= quantity
+                    locked_user.save()
+
+            # Refresh user to get updated balance after transaction
+            user.refresh_from_db()
+
     bet = request.session.get("bet")
     return render(request, "casino/coinflip/index.html",
                   {"balance": user.balance, "result": result, "error": err, "last_bet": bet if bet is not None else 10,
