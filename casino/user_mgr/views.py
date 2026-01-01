@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from casino.base.models import History
-
+from casino.settings import DEBUG
+from django.http import Http404
 
 def make_challenge():
     alphabet = string.ascii_uppercase + string.digits
@@ -71,6 +72,7 @@ def add_money(request):
         "chal": chal,
         "error": err,
         "payout": pay,
+        "debug": DEBUG,
         ##### more info
     }
     return render(request, "casino/user_mgr/add_money.html", miner_data)
@@ -79,6 +81,9 @@ def add_money(request):
 # Create your views here.
 @login_required(login_url='/login/')
 def magic_money_button(request):
+    if not DEBUG:
+        raise Http404("Page not found")
+
     user = request.user
     if request.method == "POST":
         user.balance += 100
@@ -87,3 +92,4 @@ def magic_money_button(request):
         return redirect('add_money')
     messages.error(request, "Donation error")
     return redirect('add_money')
+
