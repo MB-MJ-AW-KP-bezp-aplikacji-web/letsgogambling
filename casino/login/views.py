@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from casino.login.models import User
 from django.shortcuts import render, redirect
 
@@ -45,6 +47,12 @@ def register_user(request):
         if User.objects.filter(username=username).exists():
             request.session['error'] = "user with this username already exists."
             return redirect('register')
+        try:
+            validate_password(password, user=None)
+        except ValidationError as e:
+            request.session['error'] = ' \n'.join(e.messages)
+            return redirect('register')
+
         User.objects.create_user(username, password)
         request.session['error'] = None
         return redirect("login_page")
