@@ -40,7 +40,7 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = ['le-casino.fr4tliz.org', 'localhost']
-
+CSRF_TRUSTED_ORIGINS = ['le-casino.fr4tliz.org', 'localhost']
 INSTALLED_APPS = [
     'daphne',
     'django.contrib.admin',
