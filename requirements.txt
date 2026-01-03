@@ -6,5 +6,5 @@ channels-redis==4.2.0
 daphne==4.1.0
 redis==5.0.1
 psycopg
-sqlparse>=0.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
+sqlparse>=0.5.4 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
