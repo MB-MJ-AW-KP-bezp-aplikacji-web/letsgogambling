@@ -21,7 +21,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 DEBUG = os.environ.get('DJANGO_DEBUG', '').lower() == 'true'
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
