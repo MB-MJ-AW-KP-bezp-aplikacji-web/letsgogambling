@@ -12,7 +12,7 @@ from django.http import Http404
 
 def make_challenge():
     alphabet = string.ascii_uppercase + string.digits
-    return ''.join(choice(alphabet) for _ in range(24))
+    return ''.join(choice(alphabet) for _ in range(24)).strip()
 
 
 

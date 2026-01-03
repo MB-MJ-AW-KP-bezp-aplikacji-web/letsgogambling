@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractBaseUser):
     id = models.BigAutoField(primary_key=True)
     username = models.CharField(unique=True)
-    balance = models.IntegerField(default=0)
+    balance = models.BigIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     objects = CustomUserManager()
