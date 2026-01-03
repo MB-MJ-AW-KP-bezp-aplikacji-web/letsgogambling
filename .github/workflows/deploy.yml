@@ -273,10 +273,10 @@ jobs:
             --allow-unauthenticated \
             --port=8000 \
             --cpu=1 \
-            --memory=1Gi \
+            --memory=512Mi \
             --min-instances=1 \
-            --max-instances=3 \
-            --timeout=300 \
+            --max-instances=1 \
+            --timeout=3600 \
             --concurrency=80 \
             --set-env-vars="DJANGO_DEBUG=false" \
             --set-env-vars="DB_HOST=${{ vars.DB_HOST }}" \
@@ -287,10 +287,14 @@ jobs:
             --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
             --set-secrets="SECRET_KEY=django-secret-key:latest" \
             --set-secrets="DB_PASSWORD=db-password:latest" \
-            --vpc-connector=${{ vars.VPC_CONNECTOR_NAME }} \
+            --set-cloudsql-instances="${{ vars.CLOUD_SQL_CONNECTION_NAME }}" \
+            --network=default \
+            --subnet=default \
             --vpc-egress=private-ranges-only \
             --execution-environment=gen2 \
-            --use-http2
+            --use-http2 \
+            --session-affinity \
+            --cpu-boost
 
           # Get the service URL
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
