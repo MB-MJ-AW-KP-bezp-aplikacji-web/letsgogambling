@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+make {% load money_filters %}
 
 {% block title %}Casino Profile{% endblock %}
 
@@ -18,7 +19,7 @@
 
         <div class="bg-gray-800/50 rounded-xl p-6 text-center">
             <p class="text-gray-400 text-sm mb-1">Current Balance</p>
-            <p class="font-casino text-4xl text-neon-gold text-glow-gold">${{ balance|floatformat:0 }}</p>
+            <p class="font-casino text-4xl text-neon-gold text-glow-gold">${{ balance|format_money }}</p>
         </div>
     </div>
 
@@ -32,7 +33,7 @@
             {% for win in wins %}
             <div class="flex justify-between items-center bg-gray-800/50 rounded-lg p-4">
                 <span class="text-gray-400 text-sm">{{ win.cashout_time }}</span>
-                <span class="font-casino text-neon-green">+${{ win.amount|floatformat:0 }}</span>
+                <span class="font-casino text-neon-green">+${{ win.amount|format_money }}</span>
             </div>
             {% endfor %}
         </div>

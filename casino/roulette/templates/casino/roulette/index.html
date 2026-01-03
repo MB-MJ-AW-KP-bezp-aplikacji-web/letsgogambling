@@ -561,7 +561,7 @@
                 <button class="quick-btn allin" onclick="allIn()">MAX</button>
             </div>
             <div class="bet-amount-display">
-                <input type="number" id="bet-amount-input" placeholder="0" min="0" step="1">
+                <input type="text" id="bet-amount-input" placeholder="0" inputmode="numeric">
             </div>
         </div>
 
@@ -692,15 +692,20 @@
     }
 
     function getCurrentBalance() {
-        return parseFloat(document.getElementById('balance').textContent) || 0;
+        // Remove commas before parsing: "16,986,566" -> 16986566
+        const balanceText = document.getElementById('balance').textContent.replace(/,/g, '');
+        return parseFloat(balanceText) || 0;
     }
 
     function getBetAmount() {
-        return parseFloat(document.getElementById('bet-amount-input').value) || 0;
+        // Remove commas before parsing: "50,600" -> 50600
+        const betText = document.getElementById('bet-amount-input').value.replace(/,/g, '');
+        return parseFloat(betText) || 0;
     }
 
     function setBetAmount(amount) {
-        document.getElementById('bet-amount-input').value = amount > 0 ? Math.floor(amount) : '';
+        const input = document.getElementById('bet-amount-input');
+        input.value = amount > 0 ? formatMoney(amount) : '';
     }
 
     function addToBet(amount) {
@@ -721,7 +726,7 @@
         const element = document.getElementById(`current-bet-${color}`);
         const amount = myBets[color];
         if (amount > 0) {
-            element.textContent = `Your bet: $${Math.floor(amount)}`;
+            element.textContent = `Your bet: $${formatMoney(amount)}`;
             element.classList.add('has-bet');
         } else {
             element.textContent = 'Your bet: -';
@@ -731,7 +736,7 @@
 
     function updateTotalBetsDisplay(color) {
         const element = document.getElementById(`total-bets-${color}`);
-        element.textContent = `Total: $${Math.floor(totalBets[color])}`;
+        element.textContent = `Total: $${formatMoney(totalBets[color])}`;
     }
 
     function resetBetDisplays() {
@@ -953,7 +958,7 @@
         addToHistory(colorName);
 
         if (yourPayout > 0) {
-            resultDiv.textContent = `${colorName} WINS! You won $${Math.floor(yourPayout)}!`;
+            resultDiv.textContent = `${colorName} WINS! You won $${formatMoney(yourPayout)}!`;
             resultDiv.className = 'result-display winner';
         } else {
             resultDiv.textContent = `${colorName} wins.`;
@@ -1028,7 +1033,7 @@
             const betItem = document.createElement('div');
             betItem.className = 'tile-bet-item' + (isOwnBet ? ' own-bet' : '');
             betItem.setAttribute('data-username', username);
-            betItem.innerHTML = `<strong>${username}</strong>: $${Math.floor(amount)}`;
+            betItem.innerHTML = `<strong>${username}</strong>: $${formatMoney(amount)}`;
             list.appendChild(betItem);
         });
     }
@@ -1041,8 +1046,13 @@
         });
     }
 
+    function formatMoney(amount) {
+        // Format number with commas: 16986566 -> 16,986,566
+        return Math.floor(amount).toLocaleString('en-US');
+    }
+
     function updateBalance(newBalance) {
-        document.getElementById('balance').textContent = Math.floor(newBalance);
+        document.getElementById('balance').textContent = formatMoney(newBalance);
     }
 
 
@@ -1154,18 +1164,24 @@
         drawWheel();
         connectWebSocket();
 
+        // Format initial balance display
+        const balanceEl = document.getElementById('balance');
+        const initialBalance = parseFloat(balanceEl.textContent) || 0;
+        balanceEl.textContent = formatMoney(initialBalance);
+
         // Restore last bet from localStorage
         const savedBet = localStorage.getItem('roulette_bet');
         if (savedBet) {
-            document.getElementById('bet-amount-input').value = savedBet;
+            const savedAmount = parseFloat(savedBet.replace(/,/g, '')) || 0;
+            document.getElementById('bet-amount-input').value = savedAmount > 0 ? formatMoney(savedAmount) : '';
         }
 
-        // Save bet amount when it changes and ensure integer
+        // Save bet amount when it changes and ensure integer with formatting
         document.getElementById('bet-amount-input').addEventListener('change', () => {
             const input = document.getElementById('bet-amount-input');
-            const val = parseFloat(input.value) || 0;
-            input.value = val > 0 ? Math.floor(val) : '';
-            localStorage.setItem('roulette_bet', input.value);
+            const val = parseFloat(input.value.replace(/,/g, '')) || 0;
+            input.value = val > 0 ? formatMoney(val) : '';
+            localStorage.setItem('roulette_bet', val);
         });
     });
 </script>
