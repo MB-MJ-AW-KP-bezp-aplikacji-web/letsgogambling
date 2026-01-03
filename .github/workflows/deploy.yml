@@ -1,0 +1,307 @@
+name: Build, Scan, and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - master
+      - main
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.GCP_REGION }}
+  SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+  REGISTRY: gcr.io
+
+jobs:
+  build-and-scan:
+    name: Build Docker Image and Security Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker gcr.io
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
+          tags: |
+            type=sha,prefix={{branch}}-,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:buildcache,mode=max
+
+      - name: Start temporary container for scanning
+        id: start-container
+        run: |
+          # Extract the first tag from the metadata output
+          IMAGE_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+          # Create a Docker network for isolation
+          docker network create scan-network
+
+          # Start PostgreSQL for the app
+          docker run -d \
+            --name scan-postgres \
+            --network scan-network \
+            -e POSTGRES_DB=casino \
+            -e POSTGRES_USER=casino_user \
+            -e POSTGRES_PASSWORD=casino_password \
+            postgres:16-alpine
+
+          # Start Redis for the app
+          docker run -d \
+            --name scan-redis \
+            --network scan-network \
+            redis:7-alpine
+
+          # Wait for services to be ready
+          sleep 10
+
+          # Start the application container
+          docker run -d \
+            --name scan-target \
+            --network scan-network \
+            -p 8000:8000 \
+            -e SECRET_KEY=test-secret-key-for-scanning \
+            -e DJANGO_DEBUG=false \
+            -e DB_NAME=casino \
+            -e DB_USER=casino_user \
+            -e DB_PASSWORD=casino_password \
+            -e DB_HOST=scan-postgres \
+            -e DB_PORT=5432 \
+            -e REDIS_HOST=scan-redis \
+            -e REDIS_PORT=6379 \
+            -e ALLOWED_HOSTS=* \
+            "${IMAGE_TAG}"
+
+          # Wait for application to be ready
+          echo "Waiting for application to be ready..."
+          for i in {1..30}; do
+            if docker logs scan-target 2>&1 | grep -q "Listening"; then
+              echo "Application is ready"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Application failed to start"
+              docker logs scan-target
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Run Nuclei security scan
+        id: nuclei-scan
+        continue-on-error: true
+        run: |
+          # Create output directory
+          mkdir -p nuclei-output
+
+          # Run Nuclei scanner against the running container
+          docker run --rm \
+            --network scan-network \
+            -v $(pwd)/nuclei-output:/output \
+            projectdiscovery/nuclei:latest \
+            -u http://scan-target:8000 \
+            -severity critical,high,medium,low,info \
+            -json -o /output/nuclei-results.json \
+            -markdown-export /output/nuclei-report.md \
+            -stats
+
+          # Also scan WebSocket endpoint
+          docker run --rm \
+            --network scan-network \
+            -v $(pwd)/nuclei-output:/output \
+            projectdiscovery/nuclei:latest \
+            -u ws://scan-target:8000/ws/roulette/ \
+            -severity critical,high,medium,low,info \
+            -json -o /output/nuclei-ws-results.json \
+            -stats || true
+
+      - name: Stop and remove scan containers
+        if: always()
+        run: |
+          docker stop scan-target scan-postgres scan-redis || true
+          docker rm scan-target scan-postgres scan-redis || true
+          docker network rm scan-network || true
+
+      - name: Parse Nuclei results and check for vulnerabilities
+        id: check-vulns
+        run: |
+          # Check if results file exists
+          if [ ! -f nuclei-output/nuclei-results.json ]; then
+            echo "No vulnerabilities found (scan may have found nothing)"
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "high=0" >> $GITHUB_OUTPUT
+            echo "medium=0" >> $GITHUB_OUTPUT
+            echo "low=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Parse JSON results and count severities
+          CRITICAL=$(jq '[.[] | select(.info.severity=="critical")] | length' nuclei-output/nuclei-results.json || echo "0")
+          HIGH=$(jq '[.[] | select(.info.severity=="high")] | length' nuclei-output/nuclei-results.json || echo "0")
+          MEDIUM=$(jq '[.[] | select(.info.severity=="medium")] | length' nuclei-output/nuclei-results.json || echo "0")
+          LOW=$(jq '[.[] | select(.info.severity=="low")] | length' nuclei-output/nuclei-results.json || echo "0")
+
+          echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
+          echo "high=${HIGH}" >> $GITHUB_OUTPUT
+          echo "medium=${MEDIUM}" >> $GITHUB_OUTPUT
+          echo "low=${LOW}" >> $GITHUB_OUTPUT
+
+          # Display summary
+          echo "### Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Critical: ${CRITICAL}" >> $GITHUB_STEP_SUMMARY
+          echo "- High: ${HIGH}" >> $GITHUB_STEP_SUMMARY
+          echo "- Medium: ${MEDIUM}" >> $GITHUB_STEP_SUMMARY
+          echo "- Low: ${LOW}" >> $GITHUB_STEP_SUMMARY
+
+          # Check if we should block deployment
+          if [ "${CRITICAL}" -gt 0 ] || [ "${HIGH}" -gt 0 ]; then
+            echo "### Deployment BLOCKED due to Critical or High severity vulnerabilities!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Upload Nuclei results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuclei-scan-results
+          path: nuclei-output/
+          retention-days: 30
+
+      - name: Comment PR with scan results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = '## Security Scan Results\n\n';
+
+            if (fs.existsSync('nuclei-output/nuclei-report.md')) {
+              const report = fs.readFileSync('nuclei-output/nuclei-report.md', 'utf8');
+              comment += report;
+            } else {
+              comment += 'No vulnerabilities detected.\n';
+            }
+
+            comment += '\n\n**Severity Summary:**\n';
+            comment += `- Critical: ${{ steps.check-vulns.outputs.critical }}\n`;
+            comment += `- High: ${{ steps.check-vulns.outputs.high }}\n`;
+            comment += `- Medium: ${{ steps.check-vulns.outputs.medium }}\n`;
+            comment += `- Low: ${{ steps.check-vulns.outputs.low }}\n`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  deploy:
+    name: Deploy to Cloud Run
+    needs: build-and-scan
+    runs-on: ubuntu-latest
+
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          # Extract the first tag from the build job
+          IMAGE_TAG=$(echo "${{ needs.build-and-scan.outputs.image-tag }}" | head -n1)
+
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image="${IMAGE_TAG}" \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --allow-unauthenticated \
+            --port=8000 \
+            --cpu=1 \
+            --memory=1Gi \
+            --min-instances=1 \
+            --max-instances=3 \
+            --timeout=300 \
+            --concurrency=80 \
+            --set-env-vars="DJANGO_DEBUG=false" \
+            --set-env-vars="DB_HOST=${{ vars.DB_HOST }}" \
+            --set-env-vars="DB_PORT=${{ vars.DB_PORT }}" \
+            --set-env-vars="DB_NAME=${{ vars.DB_NAME }}" \
+            --set-env-vars="DB_USER=${{ vars.DB_USER }}" \
+            --set-env-vars="REDIS_HOST=${{ vars.REDIS_HOST }}" \
+            --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
+            --set-secrets="SECRET_KEY=django-secret-key:latest" \
+            --set-secrets="DB_PASSWORD=db-password:latest" \
+            --set-cloudsql-instances="${{ vars.CLOUD_SQL_CONNECTION_NAME }}" \
+            --vpc-connector=${{ vars.VPC_CONNECTOR_NAME }} \
+            --vpc-egress=private-ranges-only \
+            --execution-environment=gen2 \
+            --use-http2
+
+          # Get the service URL
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+
+          echo "service-url=${SERVICE_URL}" >> $GITHUB_OUTPUT
+          echo "### Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "Service URL: ${SERVICE_URL}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Update ALLOWED_HOSTS in Cloud Run
+        run: |
+          # Extract domain from service URL
+          SERVICE_URL="${{ steps.deploy.outputs.service-url }}"
+          DOMAIN=$(echo $SERVICE_URL | sed 's|https://||' | sed 's|http://||')
+
+          # Update service with ALLOWED_HOSTS
+          gcloud run services update ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --update-env-vars="ALLOWED_HOSTS=${DOMAIN},le-casino.fr4tliz.org,localhost" \
+            --update-env-vars="CSRF_TRUSTED_ORIGINS=https://${DOMAIN},https://le-casino.fr4tliz.org,http://localhost"
