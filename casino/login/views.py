@@ -11,8 +11,10 @@ def login_page(request):
         return redirect('/')
     request.session['legit'] = False
     if request.method == "POST":
+        if not request.POST.get('pin'):
+            return render(request, "casino/login/index.html", {'error': "Empty PIN"})
         pin = int(request.POST.get('pin'))
-        if pin == 2137:
+        if pin == 213721372137:
             request.session['legit'] = True
             request.session['error'] = None
             return redirect('register')
