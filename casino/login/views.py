@@ -6,19 +6,22 @@ from django.shortcuts import render, redirect
 
 
 def login_page(request):
-    err = request.session.get('error')
+    login_err = request.session.get('login_err')
     if request.user.is_authenticated:
         return redirect('/')
     request.session['legit'] = False
     if request.method == "POST":
         if not request.POST.get('pin'):
-            return render(request, "casino/login/index.html", {'error': "Empty PIN"})
+            return render(request, "casino/login/index.html", {'register_err': "Empty PIN"})
         pin = int(request.POST.get('pin'))
-        if pin == 213721372137:
+        if pin != 213721372137:
+            return render(request, "casino/login/index.html", {'register_err': "Wrong PIN"})
+        else:
             request.session['legit'] = True
-            request.session['error'] = None
+            request.session['login_err'] = None
+            request.session['register_err'] = None
             return redirect('register')
-    return render(request, "casino/login/index.html", {'error': err})
+    return render(request, "casino/login/index.html", {'login_err': login_err})
 
 
 def login_user(request):
@@ -29,10 +32,10 @@ def login_user(request):
     password = request.POST["password"]
     user = authenticate(request, username=username, password=password)
     if user is not None:
-        request.session['error'] = None
+        request.session['login_err'] = None
         login(request, user)
         return redirect(next)
-    request.session['error'] = 'Invalid username and/or password.'
+    request.session['login_err'] = 'Invalid username and/or password.'
     return redirect('login_page')
 
 
@@ -44,22 +47,22 @@ def register_user(request):
         password = request.POST["password"]
         password2 = request.POST["password_rep"]
         if password != password2 or not username or not password:
-            request.session['error'] = "passwords don't match"
+            request.session['login_err'] = "passwords don't match"
             return redirect('register')
         if User.objects.filter(username=username).exists():
-            request.session['error'] = "user with this username already exists."
+            request.session['login_err'] = "user with this username already exists."
             return redirect('register')
         try:
             validate_password(password, user=None)
         except ValidationError as e:
-            request.session['error'] = ' \n'.join(e.messages)
+            request.session['login_err'] = ' \n'.join(e.messages)
             return redirect('register')
 
         user = User.objects.create_user(username, password)
         login(request, user)
-        request.session['error'] = None
+        request.session['login_err'] = None
         return redirect("/")
-    return render(request, "casino/login/register.html", {'error': request.session.get('error')})
+    return render(request, "casino/login/register.html", {'login_err': request.session.get('login_err')})
 
 
 def logout_user(request):

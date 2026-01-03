@@ -85,9 +85,9 @@
                         ENTER
                     </button>
                 </form>
-                {% if error != None %}
+                {% if login_err != None %}
                 <div class="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
-                    <p class="text-red-400 text-sm">{{ error }}</p>
+                    <p class="text-red-400 text-sm">{{ login_err }}</p>
                 </div>
                 {% endif %}
             </div>
@@ -100,12 +100,16 @@
                     <div>
                         <label class="block text-gray-400 text-sm mb-2">Secret PIN</label>
                         <input name="pin" type="number" class="no-spinner input-casino w-full px-4 py-3 rounded-lg text-gray-100 placeholder-gray-500"
-                               placeholder="Enter 12-digit PIN" min="100000000000" max="999999999999" required>
+                               placeholder="Enter 12-digit PIN" min="100000000000" max="999999999999" >
                     </div>
                     <button type="submit" class="w-full py-3 rounded-lg font-bold tracking-wide mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/50 transition-all">
                         UNLOCK
                     </button>
-                    <p id="error_msg" class="text-red-400 text-sm hidden">Wrong PIN</p>
+                    {% if register_err %}
+                    <div class="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
+                        <p class="text-red-400 text-sm">{{ register_err }}</p>
+                    </div>
+                    {% endif %}
                 </form>
             </div>
         </div>
