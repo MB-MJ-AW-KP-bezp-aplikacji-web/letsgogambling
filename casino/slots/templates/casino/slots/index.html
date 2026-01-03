@@ -179,7 +179,7 @@
 
     <div class="card-casino rounded-2xl p-6 mb-8">
         <div class="flex justify-between items-center mb-6">
-            <span class="text-gray-400">Your Balance</span>
+            <span class="text-gray-400"></span>
             <span class="font-casino text-2xl text-neon-gold">$<span id="balance">0</span></span>
         </div>
 
@@ -284,7 +284,7 @@ function renderMachines() {
 
 function updateTotalBet() {
     const bet = Number(betInput.value) || 0;
-    totalBetEl.textContent = `$${bet * machineCount}`;
+    totalBetEl.textContent = `$${formatMoney(bet * machineCount)}`;
 }
 
 // Machine count selector
@@ -314,8 +314,15 @@ betInput.addEventListener('change', () => {
 
 betInput.addEventListener('input', updateTotalBet);
 
+function formatMoney(amount) {
+    // Format number with commas: 16986566 -> 16,986,566
+    return Math.floor(amount).toLocaleString('en-US');
+}
+
 function getCurrentBalance() {
-    return parseFloat(balanceEl.textContent) || 0;
+    // Remove commas before parsing: "16,986,566" -> 16986566
+    const balanceText = balanceEl.textContent.replace(/,/g, '');
+    return parseFloat(balanceText) || 0;
 }
 
 function setBetAmount(amount) {
@@ -341,7 +348,7 @@ function allIn() {
 fetch("/api/balance/")
   .then(res => res.json())
   .then(data => {
-    balanceEl.textContent = Math.floor(data.balance);
+    balanceEl.textContent = formatMoney(data.balance);
   });
 
 // Initialize machines
@@ -423,7 +430,7 @@ spinBtn.addEventListener("click", async () => {
 
                 if (result.win > 0) {
                     machine.classList.add("winner");
-                    resultEl.textContent = `+$${Math.floor(result.win)}`;
+                    resultEl.textContent = `+$${formatMoney(result.win)}`;
                     resultEl.className = "machine-result win";
                 } else {
                     machine.classList.add("loser");
@@ -432,10 +439,10 @@ spinBtn.addEventListener("click", async () => {
                 }
             });
 
-            balanceEl.textContent = Math.floor(data.balance);
+            balanceEl.textContent = formatMoney(data.balance);
 
             if (data.total_win > 0) {
-                messageEl.textContent = `TOTAL WIN: +$${Math.floor(data.total_win)}`;
+                messageEl.textContent = `TOTAL WIN: +$${formatMoney(data.total_win)}`;
                 messageEl.className = "text-center text-xl font-casino mb-4 h-8 text-neon-green text-glow-green";
             } else {
                 messageEl.textContent = "NO WINS";
