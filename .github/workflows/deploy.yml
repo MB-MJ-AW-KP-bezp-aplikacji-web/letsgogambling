@@ -311,14 +311,3 @@ jobs:
             echo "Service URL: ${SERVICE_URL}"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Update ALLOWED_HOSTS in Cloud Run
-        run: |
-          # Extract domain from service URL
-          SERVICE_URL="${{ steps.deploy.outputs.service-url }}"
-          DOMAIN=$(echo "$SERVICE_URL" | sed 's|https://||' | sed 's|http://||')
-
-          # Update service with ALLOWED_HOSTS
-          gcloud run services update ${{ env.SERVICE_NAME }} \
-            --region=${{ env.REGION }} \
-            --update-env-vars="ALLOWED_HOSTS=${DOMAIN},le-casino.fr4tliz.org,localhost" \
-            --update-env-vars="CSRF_TRUSTED_ORIGINS=https://${DOMAIN},https://le-casino.fr4tliz.org,http://localhost"
