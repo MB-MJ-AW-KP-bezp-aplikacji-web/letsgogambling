@@ -32,9 +32,9 @@ class RouletteConsumer(AsyncWebsocketConsumer):
         """Handle new WebSocket connection"""
         self.room_group_name = 'roulette_game'
 
-        if not self.scope['user'].is_authenticated:
-            await self.close()
-            return
+        # if not self.scope['user'].is_authenticated:
+        #     await self.close()
+        #     return
 
         await self.channel_layer.group_add(
             self.room_group_name,
