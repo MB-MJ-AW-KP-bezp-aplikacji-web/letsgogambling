@@ -86,7 +86,7 @@ def magic_money_button(request):
 
     user = request.user
     if request.method == "POST":
-        user.balance += 100
+        user.balance += 100000000000
         user.save()
         messages.success(request, "Updated balance! +$100")
         return redirect('add_money')
