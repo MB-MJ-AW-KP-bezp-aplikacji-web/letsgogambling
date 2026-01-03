@@ -69,7 +69,7 @@ jobs:
         run: |
           # Extract the first tag from the metadata output
           IMAGE_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
-          echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "image-tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
           # Create a Docker network for isolation
           docker network create scan-network
@@ -116,7 +116,7 @@ jobs:
               echo "Application is ready"
               break
             fi
-            if [ $i -eq 30 ]; then
+            if [ "$i" -eq 30 ]; then
               echo "Application failed to start"
               docker logs scan-target
               exit 1
@@ -134,7 +134,7 @@ jobs:
           # Run Nuclei scanner against the running container
           docker run --rm \
             --network scan-network \
-            -v $(pwd)/nuclei-output:/output \
+            -v "$(pwd)"/nuclei-output:/output \
             projectdiscovery/nuclei:latest \
             -u http://scan-target:8000 \
             -severity critical,high,medium,low,info \
@@ -145,7 +145,7 @@ jobs:
           # Also scan WebSocket endpoint
           docker run --rm \
             --network scan-network \
-            -v $(pwd)/nuclei-output:/output \
+            -v "$(pwd)"/nuclei-output:/output \
             projectdiscovery/nuclei:latest \
             -u ws://scan-target:8000/ws/roulette/ \
             -severity critical,high,medium,low,info \
@@ -165,10 +165,12 @@ jobs:
           # Check if results file exists
           if [ ! -f nuclei-output/nuclei-results.json ]; then
             echo "No vulnerabilities found (scan may have found nothing)"
-            echo "critical=0" >> $GITHUB_OUTPUT
-            echo "high=0" >> $GITHUB_OUTPUT
-            echo "medium=0" >> $GITHUB_OUTPUT
-            echo "low=0" >> $GITHUB_OUTPUT
+            {
+              echo "critical=0"
+              echo "high=0"
+              echo "medium=0"
+              echo "low=0"
+            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -178,21 +180,25 @@ jobs:
           MEDIUM=$(jq '[.[] | select(.info.severity=="medium")] | length' nuclei-output/nuclei-results.json || echo "0")
           LOW=$(jq '[.[] | select(.info.severity=="low")] | length' nuclei-output/nuclei-results.json || echo "0")
 
-          echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
-          echo "high=${HIGH}" >> $GITHUB_OUTPUT
-          echo "medium=${MEDIUM}" >> $GITHUB_OUTPUT
-          echo "low=${LOW}" >> $GITHUB_OUTPUT
+          {
+            echo "critical=${CRITICAL}"
+            echo "high=${HIGH}"
+            echo "medium=${MEDIUM}"
+            echo "low=${LOW}"
+          } >> "$GITHUB_OUTPUT"
 
           # Display summary
-          echo "### Security Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Critical: ${CRITICAL}" >> $GITHUB_STEP_SUMMARY
-          echo "- High: ${HIGH}" >> $GITHUB_STEP_SUMMARY
-          echo "- Medium: ${MEDIUM}" >> $GITHUB_STEP_SUMMARY
-          echo "- Low: ${LOW}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Security Scan Results"
+            echo "- Critical: ${CRITICAL}"
+            echo "- High: ${HIGH}"
+            echo "- Medium: ${MEDIUM}"
+            echo "- Low: ${LOW}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           # Check if we should block deployment
           if [ "${CRITICAL}" -gt 0 ] || [ "${HIGH}" -gt 0 ]; then
-            echo "### Deployment BLOCKED due to Critical or High severity vulnerabilities!" >> $GITHUB_STEP_SUMMARY
+            echo "### Deployment BLOCKED due to Critical or High severity vulnerabilities!" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -290,15 +296,20 @@ jobs:
             --region=${{ env.REGION }} \
             --format='value(status.url)')
 
-          echo "service-url=${SERVICE_URL}" >> $GITHUB_OUTPUT
-          echo "### Deployment Successful!" >> $GITHUB_STEP_SUMMARY
-          echo "Service URL: ${SERVICE_URL}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "service-url=${SERVICE_URL}"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Deployment Successful!"
+            echo "Service URL: ${SERVICE_URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update ALLOWED_HOSTS in Cloud Run
         run: |
           # Extract domain from service URL
           SERVICE_URL="${{ steps.deploy.outputs.service-url }}"
-          DOMAIN=$(echo $SERVICE_URL | sed 's|https://||' | sed 's|http://||')
+          DOMAIN=$(echo "$SERVICE_URL" | sed 's|https://||' | sed 's|http://||')
 
           # Update service with ALLOWED_HOSTS
           gcloud run services update ${{ env.SERVICE_NAME }} \
