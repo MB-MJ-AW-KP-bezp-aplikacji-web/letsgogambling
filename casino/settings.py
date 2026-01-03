@@ -129,11 +129,6 @@ DATABASES = {
     }
 }
 
-# Cloud SQL Unix socket support
-if DB_HOST and DB_HOST.startswith('/cloudsql/'):
-    DATABASES['default']['HOST'] = ''
-    DATABASES['default']['OPTIONS'] = {'unix_sock': DB_HOST}
-
 
 if not DEBUG:
     AUTH_PASSWORD_VALIDATORS = [

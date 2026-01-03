@@ -287,7 +287,6 @@ jobs:
             --set-env-vars="REDIS_PORT=${{ vars.REDIS_PORT }}" \
             --set-secrets="SECRET_KEY=django-secret-key:latest" \
             --set-secrets="DB_PASSWORD=db-password:latest" \
-            --set-cloudsql-instances="${{ vars.CLOUD_SQL_CONNECTION_NAME }}" \
             --vpc-connector=${{ vars.VPC_CONNECTOR_NAME }} \
             --vpc-egress=private-ranges-only \
             --execution-environment=gen2 \
