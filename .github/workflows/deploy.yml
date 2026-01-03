@@ -139,8 +139,9 @@ jobs:
             projectdiscovery/nuclei:latest \
             -u http://scan-target:8000 \
             -severity critical,high,medium,low,info \
-            -json -o /output/nuclei-results.json \
-            -markdown-export /output/nuclei-report.md \
+            -o /output/nuclei-results.json \
+            -jsonl \
+            -markdown-export /output \
             -stats
 
           # Also scan WebSocket endpoint
@@ -150,7 +151,8 @@ jobs:
             projectdiscovery/nuclei:latest \
             -u ws://scan-target:8000/ws/roulette/ \
             -severity critical,high,medium,low,info \
-            -json -o /output/nuclei-ws-results.json \
+            -o /output/nuclei-ws-results.json \
+            -jsonl \
             -stats || true
 
       - name: Stop and remove scan containers
@@ -175,11 +177,11 @@ jobs:
             exit 0
           fi
 
-          # Parse JSON results and count severities
-          CRITICAL=$(jq '[.[] | select(.info.severity=="critical")] | length' nuclei-output/nuclei-results.json || echo "0")
-          HIGH=$(jq '[.[] | select(.info.severity=="high")] | length' nuclei-output/nuclei-results.json || echo "0")
-          MEDIUM=$(jq '[.[] | select(.info.severity=="medium")] | length' nuclei-output/nuclei-results.json || echo "0")
-          LOW=$(jq '[.[] | select(.info.severity=="low")] | length' nuclei-output/nuclei-results.json || echo "0")
+          # Parse JSONL results and count severities (each line is a separate JSON object)
+          CRITICAL=$(jq -s '[.[] | select(.info.severity=="critical")] | length' nuclei-output/nuclei-results.json || echo "0")
+          HIGH=$(jq -s '[.[] | select(.info.severity=="high")] | length' nuclei-output/nuclei-results.json || echo "0")
+          MEDIUM=$(jq -s '[.[] | select(.info.severity=="medium")] | length' nuclei-output/nuclei-results.json || echo "0")
+          LOW=$(jq -s '[.[] | select(.info.severity=="low")] | length' nuclei-output/nuclei-results.json || echo "0")
 
           {
             echo "critical=${CRITICAL}"
