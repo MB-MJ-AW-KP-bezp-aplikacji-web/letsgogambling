@@ -47,8 +47,8 @@ class Bet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='roulette_bets')
     round = models.ForeignKey(GameRound, on_delete=models.CASCADE, related_name='bets')
     color = models.CharField(max_length=4, choices=COLOR_CHOICES)
-    amount = models.FloatField()
-    payout = models.FloatField(default=0)
+    amount = models.BigIntegerField()
+    payout = models.BigIntegerField(default=0)
     placed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
