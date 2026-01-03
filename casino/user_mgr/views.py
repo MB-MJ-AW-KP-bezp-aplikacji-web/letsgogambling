@@ -28,7 +28,7 @@ def profile_page(request):
     }
     return render(request, "casino/user_mgr/index.html", miner_data)
 
-MIN_ZEROS = 5
+MIN_ZEROS = 6
 @login_required(login_url='/login/')
 def add_money(request):
     user = request.user
