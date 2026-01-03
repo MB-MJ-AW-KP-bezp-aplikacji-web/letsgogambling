@@ -43,6 +43,16 @@ if not DEBUG:
 
 ALLOWED_HOSTS = ['le-casino.fr4tliz.org', 'localhost']
 CSRF_TRUSTED_ORIGINS = ['https://le-casino.fr4tliz.org', 'http://localhost']
+
+# # Cloud Run dynamic configuration
+# if os.getenv('K_SERVICE'):  # Running on Cloud Run
+#     ALLOWED_HOSTS_ENV = os.getenv('ALLOWED_HOSTS', '')
+#     if ALLOWED_HOSTS_ENV:
+#         ALLOWED_HOSTS = ALLOWED_HOSTS_ENV.split(',')
+
+#     CSRF_TRUSTED_ORIGINS_ENV = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+#     if CSRF_TRUSTED_ORIGINS_ENV:
+#         CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS_ENV.split(',')
 INSTALLED_APPS = [
     'daphne',
     'django.contrib.admin',
@@ -118,6 +128,11 @@ DATABASES = {
         'PORT': DB_PORT
     }
 }
+
+# Cloud SQL Unix socket support
+if DB_HOST and DB_HOST.startswith('/cloudsql/'):
+    DATABASES['default']['HOST'] = ''
+    DATABASES['default']['OPTIONS'] = {'unix_sock': DB_HOST}
 
 
 if not DEBUG:
