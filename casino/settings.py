@@ -69,10 +69,12 @@ INSTALLED_APPS = [
     'casino.base',
     'casino.user_mgr',
     'casino.slots',
-    'casino.api'
+    'casino.api',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,6 +106,8 @@ TEMPLATES = [
         },
     },
 ]
+
+CORS_ALLOWED_ORIGINS = ['https://le-casino.fr4tliz.org', 'http://localhost']
 
 WSGI_APPLICATION = 'casino.wsgi.application'
 ASGI_APPLICATION = 'casino.asgi.application'
