@@ -17,9 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
-RUN chmod +x /app/entrypoint.sh
-# Change ownership to non-root user
-RUN chown -R casino:casino /app
+RUN chmod +x /app/entrypoint.sh && chown -R casino:casino /app
 
 # Switch to non-root user
 USER casino
