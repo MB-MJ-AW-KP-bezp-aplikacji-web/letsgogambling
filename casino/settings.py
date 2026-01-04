@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'rest_framework',
+    'drf_spectacular',
     'casino.login',
     'casino.roulette',
     'casino.coinflip',
@@ -170,4 +171,15 @@ CHANNEL_LAYERS = {
             "hosts": [(REDIS_HOST, int(REDIS_PORT))],
         },
     },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Le Casino API',
+    'DESCRIPTION': 'Casino API for slots, roulette, and coinflip games',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
