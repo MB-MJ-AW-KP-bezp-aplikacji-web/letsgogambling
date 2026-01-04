@@ -4,17 +4,34 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from casino.base.models import User, History
 from casino.slots.views import simulate_spin, check_win
+from casino.api.serializers import (
+    BalanceResponseSerializer,
+    SpinRequestSerializer,
+    SpinResponseSerializer,
+    CoinflipRequestSerializer,
+    CoinflipResponseSerializer
+)
 from secrets import choice
 
+@extend_schema(
+    responses=BalanceResponseSerializer,
+    description="Get current user balance"
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_balance(request):
     user = request.user
     return Response({"balance": user.balance})
 
+@extend_schema(
+    request=SpinRequestSerializer,
+    responses=SpinResponseSerializer,
+    description="Spin the slot machine. Bet amount is per spin, count is number of spins (1-5)."
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def spin_api(request):
@@ -87,6 +104,11 @@ def spin_api(request):
         "total_win": total_win
     })
 
+@extend_schema(
+    request=CoinflipRequestSerializer,
+    responses=CoinflipResponseSerializer,
+    description="Flip a coin. Choice: 0 or 1. Win doubles your bet."
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def coinflip_api(request):
