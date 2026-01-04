@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
+RUN chmod +x /app/entrypoint.sh
 # Change ownership to non-root user
 RUN chown -R casino:casino /app
 
@@ -29,4 +30,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000').read()" || exit 1
 
-CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 casino.asgi:application & python manage.py run_roulette_game"]
+CMD [ "/app/entrypoint.sh" ]
