@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-
+from auditlog.registry import auditlog
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
@@ -33,4 +33,4 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_staff
 
-
+auditlog.register(User, )

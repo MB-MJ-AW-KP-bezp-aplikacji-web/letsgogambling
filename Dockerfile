@@ -12,12 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create non-root user
 RUN groupadd -r casino && useradd -r -g casino casino
 
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . /app/
-
-RUN chmod +x /app/entrypoint.sh && chown -R casino:casino /app
+RUN pip install --no-cache-dir -r requirements.txt && \
+    chmod +x /app/entrypoint.sh && \
+    mkdir -p /app/staticfiles && \
+    chown -R casino:casino /app
 
 # Switch to non-root user
 USER casino

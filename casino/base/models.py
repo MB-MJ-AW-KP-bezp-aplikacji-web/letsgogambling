@@ -1,7 +1,6 @@
 from django.db import models
 from casino.login.models import User
-
-
+from auditlog.registry import auditlog
 # Create your models here.
 class Codes(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -18,3 +17,7 @@ class History(models.Model):
     u_id = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.BigIntegerField()
     cashout_time = models.DateTimeField()
+
+auditlog.register(Codes)
+auditlog.register(UsedCodes)
+auditlog.register(History)

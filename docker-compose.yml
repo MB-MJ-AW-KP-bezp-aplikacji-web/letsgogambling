@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
     environment:
-      DJANGO_DEBUG: false
+      DJANGO_DEBUG: true
       DB_NAME: casino
       DB_USER: casino_user
       DB_PASSWORD: casino_password
