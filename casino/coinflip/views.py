@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.db import transaction
 from casino.login.models import User
+from casino.utils.balance_tracker import update_balance
 
 
 @login_required(login_url='/login/')
@@ -33,11 +34,10 @@ def coinflip(request):
                     rand = choice([0, 1])
                     if rand == usr_choice:
                         result = 1
-                        locked_user.balance += quantity
+                        update_balance(locked_user, quantity, f"coinflip_win_{quantity}")
                     else:
                         result = 0
-                        locked_user.balance -= quantity
-                    locked_user.save()
+                        update_balance(locked_user, -quantity, f"coinflip_loss_{quantity}")
 
             # Refresh user to get updated balance after transaction
             user.refresh_from_db()

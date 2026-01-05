@@ -9,6 +9,7 @@ from django.contrib import messages
 from casino.base.models import History
 from casino.settings import DEBUG
 from django.http import Http404
+from casino.utils.balance_tracker import update_balance
 
 def make_challenge():
     alphabet = string.ascii_uppercase + string.digits
@@ -61,8 +62,7 @@ def add_money(request):
                 err = "Not enough leading zeros in hash"
                 break
             pay = payout_table[zeros][1]
-            user.balance += pay
-            user.save()
+            update_balance(user, pay, f"mining_payout_{zeros}_zeros")
             request.session["chal"] = chal = make_challenge()
         break
     miner_data = {
@@ -86,8 +86,7 @@ def magic_money_button(request):
 
     user = request.user
     if request.method == "POST":
-        user.balance += 100
-        user.save()
+        update_balance(user, 100, "debug_button")
         messages.success(request, "Updated balance! +$100")
         return redirect('add_money')
     messages.error(request, "Donation error")

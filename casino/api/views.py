@@ -16,6 +16,7 @@ from casino.api.serializers import (
     CoinflipResponseSerializer
 )
 from secrets import choice
+from casino.utils.balance_tracker import update_balance
 
 @extend_schema(
     responses=BalanceResponseSerializer,
@@ -64,7 +65,7 @@ def spin_api(request):
             })
 
         # Deduct total bet first (atomic)
-        user.balance -= total_bet
+        update_balance(user, -total_bet, f"slots_bet_{count}x{bet}", save=False)
 
         results = []
         total_win = 0
@@ -90,13 +91,12 @@ def spin_api(request):
                 })
 
         # Add total winnings
-        user.balance += total_win
-
         if total_win > 0:
+            update_balance(user, total_win, f"slots_win_{count}x{bet}_payout_{total_win}")
             history_entry = History(u_id=user, amount=total_win, cashout_time=timezone.now())
             history_entry.save()
-
-        user.save()
+        else:
+            user.save()
 
     return Response({
         "results": results,
@@ -139,20 +139,19 @@ def coinflip_api(request):
             })
 
         # Deduct bet first (atomic)
-        user.balance -= bet
+        update_balance(user, -bet, f"coinflip_api_bet_{bet}", save=False)
 
         flip_result = choice([0, 1])
         if flip_result == usr_choice:
-            user.balance += bet * 2  # Return bet + win
+            win = bet * 2  # Return bet + win
+            update_balance(user, win, f"coinflip_api_win_{bet}")
             result = 1
-            win = bet
-            history_entry = History(u_id=user, amount=win, cashout_time=timezone.now())
+            history_entry = History(u_id=user, amount=bet, cashout_time=timezone.now())
             history_entry.save()
         else:
             result = 0
             win = 0
-
-        user.save()
+            user.save()
 
     return Response({
         "result": result,

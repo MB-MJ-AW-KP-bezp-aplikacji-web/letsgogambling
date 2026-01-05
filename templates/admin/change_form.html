@@ -54,6 +54,12 @@
                                 <span style="color: #155724; background-color: #d4edda; padding: 2px 4px; border-radius: 3px;">{{ values.1|default:"None" }}</span>
                             </div>
                         {% endfor %}
+                        {% if log.additional_data.balance_change_reason %}
+                            <div style="margin-top: 10px; padding: 5px; background-color: #e7f3ff; border-left: 3px solid #2196F3;">
+                                <strong style="color: #1976D2;">Reason:</strong>
+                                <span style="color: #0d47a1;">{{ log.additional_data.balance_change_reason }}</span>
+                            </div>
+                        {% endif %}
                     {% else %}
                         <em style="color: #999;">No changes recorded</em>
                     {% endif %}

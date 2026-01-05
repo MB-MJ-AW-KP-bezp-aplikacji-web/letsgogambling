@@ -40,17 +40,32 @@ admin.site.unregister(LogEntry)
 
 @admin.register(LogEntry)
 class CustomLogEntryAdmin(LogEntryAdmin):
-    list_display = ['created', 'resource_url', 'action', 'actor', 'msg_short']
+    list_display = ['created', 'resource_url', 'action', 'actor', 'msg_short', 'reason_display']
     list_filter = ['action', 'timestamp', 'content_type']
-    search_fields = ['object_repr', 'changes', 'actor__username']
+    search_fields = ['object_repr', 'changes', 'actor__username', 'additional_data']
     date_hierarchy = 'timestamp'
 
     def msg_short(self, obj):
-        """Show a short version of the changes."""
+        """Show a short version of the changes with reason if available."""
+        parts = []
+
         if obj.changes:
             changes = ', '.join([f"{k}: {v[0]}→{v[1]}" for k, v in list(obj.changes_dict.items())[:3]])
             if len(obj.changes_dict) > 3:
                 changes += '...'
-            return changes
-        return '-'
+            parts.append(changes)
+
+        # Add reason if this is a balance change
+        if obj.additional_data and 'balance_change_reason' in obj.additional_data:
+            reason = obj.additional_data['balance_change_reason']
+            parts.append(f"[Reason: {reason}]")
+
+        return ' | '.join(parts) if parts else '-'
     msg_short.short_description = 'Changes'
+
+    def reason_display(self, obj):
+        """Display the balance change reason."""
+        if obj.additional_data and 'balance_change_reason' in obj.additional_data:
+            return obj.additional_data['balance_change_reason']
+        return '-'
+    reason_display.short_description = 'Reason'
