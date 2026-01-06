@@ -25,7 +25,6 @@ services:
 
   web:
     build: .
-    command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 casino.asgi:application"
     volumes:
       - .:/app
     ports:
@@ -47,26 +46,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    restart: on-failure
-
-  roulette_game:
-    build: .
-    command: sh -c "sleep 4 && python manage.py run_roulette_game"
-    env_file:
-      - .env
-    environment:
-      DJANGO_DEBUG: false
-      DB_NAME: casino
-      DB_USER: casino_user
-      DB_PASSWORD: casino_password
-      DB_HOST: db
-      DB_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      SECRET_KEY: pawel2
-    depends_on:
-      web:
-        condition: service_started
     restart: on-failure
 
 volumes:
