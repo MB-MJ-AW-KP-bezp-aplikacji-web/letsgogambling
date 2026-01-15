@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.utils.http import url_has_allowed_host_and_scheme
+
 from casino.login.models import User
 from django.shortcuts import render, redirect
 
@@ -25,8 +27,10 @@ def login_page(request):
 
 
 def login_user(request):
+    if request.method != "POST":
+        return redirect('login_page')
     next = request.GET.get('next')
-    if not next or next == '':
+    if not next or next == '' or not url_has_allowed_host_and_scheme(next,None):
         next = '/'
     username = request.POST["username"]
     password = request.POST["password"]
