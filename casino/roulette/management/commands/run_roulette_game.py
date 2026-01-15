@@ -49,7 +49,11 @@ class Command(BaseCommand):
         """Execute a single game round"""
 
         # Phase 1: Create new round (BETTING phase)
-        round_obj = self.create_new_round()
+        try:
+            round_obj = self.create_new_round()
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'roulette game already running: {e}'))
+            exit(1)
         self.stdout.write(f'Round {round_obj.round_number} - BETTING phase started')
 
         # Broadcast round start with correct betting time
