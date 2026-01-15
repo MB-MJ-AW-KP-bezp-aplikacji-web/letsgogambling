@@ -125,6 +125,12 @@
 <script src="{% static 'js/utils.js' %}"></script>
 <script src="{% static 'js/roulette.js' %}"></script>
 <script>
+    // Global function aliases for onclick handlers
+    function setBetAmount(amount) { setBetAmountRoulette(amount); }
+    function addToBet(amount) { addToBetRoulette(amount); }
+    function multiplyBet(mult) { multiplyBetRoulette(mult); }
+    function allIn() { allInRoulette(); }
+
     window.addEventListener('DOMContentLoaded', function() {
         initRoulette("{{ username }}");
     });
