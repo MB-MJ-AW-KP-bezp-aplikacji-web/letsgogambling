@@ -18,7 +18,7 @@ class LoginPageTests(TestCase):
     
     def test_authenticated_user_redirects_to_home(self):
         """Test authenticated users are redirected to home"""
-        user = User.objects.create_user(username="testuser", password="testpass")
+        user = User.objects.create_user(username="testuser", password="testpass") # nosec
         self.client.force_login(user)  # Changed from login()
         
         response = self.client.get(self.url)
@@ -211,7 +211,7 @@ class RegisterUserTests(TestCase):
     def test_duplicate_username(self):
         """Test registration with existing username"""
         # Correct way to create user
-        User.objects.create_user(username="existinguser", password="pass123")
+        User.objects.create_user(username="existinguser", password="pass123") # nosec
         
         session = self.client.session
         session["legit"] = True
