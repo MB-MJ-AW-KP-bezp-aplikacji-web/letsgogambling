@@ -43,4 +43,17 @@ class CSPMiddleware:
         csp_header = "; ".join(csp_directives)
         response["Content-Security-Policy"] = csp_header
 
+        # Permissions Policy - restrict browser features
+        permissions_policy = [
+            "accelerometer=()",
+            "camera=()",
+            "geolocation=()",
+            "gyroscope=()",
+            "magnetometer=()",
+            "microphone=()",
+            "payment=()",
+            "usb=()",
+        ]
+        response["Permissions-Policy"] = ", ".join(permissions_policy)
+
         return response
