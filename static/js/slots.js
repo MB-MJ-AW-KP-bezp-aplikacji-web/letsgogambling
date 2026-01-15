@@ -67,6 +67,28 @@ function initSlots() {
         });
     });
 
+    // Bet control buttons via data attributes
+    document.querySelectorAll('[data-bet-set]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            setBetAmountSlots(parseFloat(btn.dataset.betSet));
+        });
+    });
+    document.querySelectorAll('[data-bet-add]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            addToBetSlots(parseFloat(btn.dataset.betAdd));
+        });
+    });
+    document.querySelectorAll('[data-bet-multiply]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            multiplyBetSlots(parseFloat(btn.dataset.betMultiply));
+        });
+    });
+    document.querySelectorAll('[data-bet-allin]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            allInSlots();
+        });
+    });
+
     // Restore last bet from localStorage
     const savedBet = localStorage.getItem('slots_bet');
     if (savedBet) {

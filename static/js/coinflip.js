@@ -13,6 +13,28 @@ const resultSubtext = document.getElementById("result-subtext");
 let selectedChoice = null;
 
 function initCoinflip() {
+    // Bet control buttons via data attributes
+    document.querySelectorAll('[data-bet-set]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            setBetAmountCoinflip(parseFloat(btn.dataset.betSet));
+        });
+    });
+    document.querySelectorAll('[data-bet-add]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            addToBetCoinflip(parseFloat(btn.dataset.betAdd));
+        });
+    });
+    document.querySelectorAll('[data-bet-multiply]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            multiplyBetCoinflip(parseFloat(btn.dataset.betMultiply));
+        });
+    });
+    document.querySelectorAll('[data-bet-allin]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            allInCoinflip();
+        });
+    });
+
     // Restore last bet from localStorage
     const savedBet = localStorage.getItem('coinflip_bet');
     if (savedBet) {

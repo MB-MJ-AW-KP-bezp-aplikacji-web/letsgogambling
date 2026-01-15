@@ -22,8 +22,8 @@ class CSPMiddleware:
         csp_directives = [
             # Default to self for anything not explicitly specified
             "default-src 'self'",
-            # Scripts: self + inline (needed for onclick handlers and small init scripts)
-            "script-src 'self' 'unsafe-inline'",
+            # Scripts: only self (no inline scripts needed)
+            "script-src 'self'",
             # Styles: self + Google Fonts
             "style-src 'self' https://fonts.googleapis.com",
             # Fonts: self + Google Fonts CDN

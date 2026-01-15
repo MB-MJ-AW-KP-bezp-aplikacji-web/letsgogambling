@@ -35,14 +35,14 @@
 
         <div class="flex flex-col items-center gap-3">
             <div class="quick-buttons">
-                <button class="quick-btn clear" onclick="setBetAmount(0)">CLR</button>
-                <button class="quick-btn add" onclick="addToBet(10)">+10</button>
-                <button class="quick-btn add" onclick="addToBet(100)">+100</button>
-                <button class="quick-btn add" onclick="addToBet(1000)">+1K</button>
-                <button class="quick-btn add" onclick="addToBet(10000)">+10K</button>
-                <button class="quick-btn modify" onclick="multiplyBet(0.5)">1/2</button>
-                <button class="quick-btn modify" onclick="multiplyBet(2)">2X</button>
-                <button class="quick-btn allin" onclick="allIn()">MAX</button>
+                <button class="quick-btn clear" data-bet-set="0">CLR</button>
+                <button class="quick-btn add" data-bet-add="10">+10</button>
+                <button class="quick-btn add" data-bet-add="100">+100</button>
+                <button class="quick-btn add" data-bet-add="1000">+1K</button>
+                <button class="quick-btn add" data-bet-add="10000">+10K</button>
+                <button class="quick-btn modify" data-bet-multiply="0.5">1/2</button>
+                <button class="quick-btn modify" data-bet-multiply="2">2X</button>
+                <button class="quick-btn allin" data-bet-allin>MAX</button>
             </div>
             <div class="total-bet-display">Total bet: <span id="total-bet">$0</span></div>
             <div class="flex items-center gap-4">
@@ -67,11 +67,4 @@
 {% block extra_scripts %}
 <script src="{% static 'js/utils.js' %}"></script>
 <script src="{% static 'js/slots.js' %}"></script>
-<script>
-    // Global function aliases for onclick handlers
-    function setBetAmount(amount) { setBetAmountSlots(amount); }
-    function addToBet(amount) { addToBetSlots(amount); }
-    function multiplyBet(mult) { multiplyBetSlots(mult); }
-    function allIn() { allInSlots(); }
-</script>
 {% endblock %}

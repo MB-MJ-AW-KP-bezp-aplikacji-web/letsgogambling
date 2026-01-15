@@ -23,14 +23,14 @@
             <div>
                 <label class="block text-gray-400 text-sm mb-2">Bet Amount</label>
                 <div class="quick-buttons mb-3">
-                    <button type="button" class="quick-btn clear" onclick="setBetAmount(0)">CLR</button>
-                    <button type="button" class="quick-btn add" onclick="addToBet(10)">+10</button>
-                    <button type="button" class="quick-btn add" onclick="addToBet(100)">+100</button>
-                    <button type="button" class="quick-btn add" onclick="addToBet(1000)">+1K</button>
-                    <button type="button" class="quick-btn add" onclick="addToBet(10000)">+10K</button>
-                    <button type="button" class="quick-btn modify" onclick="multiplyBet(0.5)">1/2</button>
-                    <button type="button" class="quick-btn modify" onclick="multiplyBet(2)">2X</button>
-                    <button type="button" class="quick-btn allin" onclick="allIn()">MAX</button>
+                    <button type="button" class="quick-btn clear" data-bet-set="0">CLR</button>
+                    <button type="button" class="quick-btn add" data-bet-add="10">+10</button>
+                    <button type="button" class="quick-btn add" data-bet-add="100">+100</button>
+                    <button type="button" class="quick-btn add" data-bet-add="1000">+1K</button>
+                    <button type="button" class="quick-btn add" data-bet-add="10000">+10K</button>
+                    <button type="button" class="quick-btn modify" data-bet-multiply="0.5">1/2</button>
+                    <button type="button" class="quick-btn modify" data-bet-multiply="2">2X</button>
+                    <button type="button" class="quick-btn allin" data-bet-allin>MAX</button>
                 </div>
                 <input type="number" id="bet-amount" min="1" step="1"
                        class="input-casino w-full px-4 py-3 rounded-lg text-gray-100 text-xl text-center">
@@ -67,11 +67,4 @@
 {% block extra_scripts %}
 <script src="{% static 'js/utils.js' %}"></script>
 <script src="{% static 'js/coinflip.js' %}"></script>
-<script>
-    // Global function aliases for onclick handlers
-    function setBetAmount(amount) { setBetAmountCoinflip(amount); }
-    function addToBet(amount) { addToBetCoinflip(amount); }
-    function multiplyBet(mult) { multiplyBetCoinflip(mult); }
-    function allIn() { allInCoinflip(); }
-</script>
 {% endblock %}
