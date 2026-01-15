@@ -50,7 +50,7 @@ class LoginPageTests(TestCase):
     
     def test_legit_session_flag_set_to_false_on_get(self):
         """Test that legit flag is set to False on GET"""
-        response = self.client.get(self.url)
+        self.client.get(self.url)
         
         self.assertFalse(self.client.session.get("legit"))
 
@@ -64,14 +64,14 @@ class LoginUserTests(TestCase):
         self.user = User.objects.create_user(
             username="testuser",
             password="testpass123"
-        )
+        ) # nosec
     
     def test_successful_login(self):
         """Test successful login redirects to home"""
         response = self.client.post(self.url, {
             "username": "testuser",
             "password": "testpass123"
-        })
+        }) # nosec
         
         self.assertRedirects(response, "/")
         self.assertIsNone(self.client.session.get("login_err"))
@@ -87,7 +87,7 @@ class LoginUserTests(TestCase):
                 "username": "testuser",
                 "password": "testpass123"
             }
-        )
+        ) # nosec
         
         self.assertRedirects(response, "/coinflip/")
     
@@ -99,7 +99,7 @@ class LoginUserTests(TestCase):
                 "username": "testuser",
                 "password": "testpass123"
             }
-        )
+        ) # nosec
         
         self.assertRedirects(response, "/")
     
@@ -108,7 +108,7 @@ class LoginUserTests(TestCase):
         response = self.client.post(self.url, {
             "username": "wronguser",
             "password": "testpass123"
-        })
+        }) # nosec
         
         self.assertRedirects(response, reverse("login_page"))
         self.assertEqual(
@@ -341,7 +341,7 @@ class LogoutUserTests(TestCase):
         self.user = User.objects.create_user(
             username="testuser",
             password="testpass"
-        )
+        ) # nosec
     
     def test_logout_redirects_to_login_page(self):
         """Test logout redirects to login page"""
