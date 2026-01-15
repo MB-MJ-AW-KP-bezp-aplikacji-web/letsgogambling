@@ -12,8 +12,11 @@ let totalBets = { GRAY: 0, RED: 0, BLUE: 0, GOLD: 0 };
 let playerBets = { GRAY: {}, RED: {}, BLUE: {}, GOLD: {} };
 let winHistory = [];
 
-function initRoulette(username) {
-    myUsername = username;
+function initRoulette() {
+    // Get username from data attribute
+    const container = document.querySelector('.roulette-container');
+    myUsername = container ? container.dataset.username : '';
+
     drawWheel();
     connectWebSocket();
 
@@ -21,6 +24,35 @@ function initRoulette(username) {
     const balanceEl = document.getElementById('balance');
     const initialBalance = parseFloat(balanceEl.textContent) || 0;
     balanceEl.textContent = formatMoney(initialBalance);
+
+    // Bet control buttons via data attributes
+    document.querySelectorAll('[data-bet-set]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            setBetAmountRoulette(parseFloat(btn.dataset.betSet));
+        });
+    });
+    document.querySelectorAll('[data-bet-add]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            addToBetRoulette(parseFloat(btn.dataset.betAdd));
+        });
+    });
+    document.querySelectorAll('[data-bet-multiply]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            multiplyBetRoulette(parseFloat(btn.dataset.betMultiply));
+        });
+    });
+    document.querySelectorAll('[data-bet-allin]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            allInRoulette();
+        });
+    });
+
+    // Place bet buttons via data attributes
+    document.querySelectorAll('[data-place-bet]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            placeBet(btn.dataset.placeBet);
+        });
+    });
 
     // Restore last bet from localStorage
     const savedBet = localStorage.getItem('roulette_bet');
@@ -37,6 +69,9 @@ function initRoulette(username) {
         localStorage.setItem('roulette_bet', val);
     });
 }
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initRoulette);
 
 function updateWinnerDisplay(color) {
     const display = document.getElementById('winner-display');

@@ -53,7 +53,7 @@ class Command(BaseCommand):
             round_obj = self.create_new_round()
         except Exception as e:
             self.stdout.write(self.style.WARNING(f'roulette game already running: {e}'))
-            exit(1)
+            exit(0)
         self.stdout.write(f'Round {round_obj.round_number} - BETTING phase started')
 
         # Broadcast round start with correct betting time
