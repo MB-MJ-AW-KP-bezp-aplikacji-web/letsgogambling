@@ -95,7 +95,13 @@ class RouletteConsumer(AsyncWebsocketConsumer):
             'amount': 100.0
         }
         """
-        user = self.scope['user']
+        # Re-verify user is still authenticated (handles logout in other tabs)
+        user = await self.get_fresh_user()
+        if user is None:
+            await self.send_error('Session expired - please refresh the page')
+            await self.close()
+            return
+
         color = data.get('color', '').upper()
         amount = data.get('amount')
 
@@ -198,6 +204,33 @@ class RouletteConsumer(AsyncWebsocketConsumer):
         }))
 
     BETTING_TIME = 15
+
+    @database_sync_to_async
+    def get_fresh_user(self):
+        """
+        Re-verify user authentication by checking session validity.
+        Returns the user if still authenticated, None otherwise.
+        """
+        from django.contrib.sessions.models import Session
+        from casino.login.models import User
+
+        # Get session key from scope
+        session = self.scope.get('session')
+        if not session or not session.session_key:
+            return None
+
+        try:
+            # Check if session still exists in database
+            Session.objects.get(session_key=session.session_key)
+
+            # Refresh user from database
+            user = self.scope.get('user')
+            if user and user.is_authenticated:
+                return User.objects.get(pk=user.pk, is_active=True)
+        except (Session.DoesNotExist, User.DoesNotExist):
+            return None
+
+        return None
 
     @database_sync_to_async
     def get_current_round(self):
