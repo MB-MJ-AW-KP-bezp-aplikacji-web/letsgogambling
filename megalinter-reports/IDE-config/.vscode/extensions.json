@@ -1,8 +1,8 @@
 {
     "recommendations": [
-        "monosans.djlint",
-        "charliermarsh.ruff",
         "exiasr.hadolint",
-        "AquaSecurityOfficial.trivy-vulnerability-scanner"
+        "charliermarsh.ruff",
+        "AquaSecurityOfficial.trivy-vulnerability-scanner",
+        "monosans.djlint"
     ]
 }
