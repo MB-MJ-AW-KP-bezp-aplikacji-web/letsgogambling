@@ -1,5 +1,9 @@
 Django==5.2.9
 djangorestframework==3.15.2
+drf-spectacular
+inflection
+pyyaml
+uritemplate
 dotenv
 channels==4.0.0
 channels-redis==4.2.0
