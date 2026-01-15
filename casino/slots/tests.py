@@ -13,7 +13,7 @@ class SlotsViewTests(TestCase):
         self.user = User.objects.create_user(
             username="testuser",
             password="testpass"
-        )
+        ) # nosec
         self.user.balance = 1000
         self.user.save()
         self.client.force_login(self.user)
@@ -358,7 +358,7 @@ class SlotsIntegrationTests(TestCase):
         self.user = User.objects.create_user(
             username="testuser",
             password="testpass"
-        )
+        ) # nosec
         self.user.balance = 1000
         self.user.save()
         self.client.force_login(self.user)
