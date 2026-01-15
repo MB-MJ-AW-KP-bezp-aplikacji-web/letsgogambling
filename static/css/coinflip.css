@@ -1,0 +1,23 @@
+/* Coinflip Game Styles */
+
+.coin-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.coin-option:hover {
+    transform: scale(1.05);
+}
+
+.coin-option.selected {
+    border-color: #39ff14 !important;
+    box-shadow: 0 0 20px #39ff14;
+}
+
+.result-card {
+    display: none;
+}
+
+.result-card.show {
+    display: block;
+}
