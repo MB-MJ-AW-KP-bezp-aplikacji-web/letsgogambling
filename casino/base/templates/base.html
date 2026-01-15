@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,71 +7,8 @@
     <title>{% block title %}Casino{% endblock %}</title>
     <meta name="description" content="BIG WIN">
     <meta name="keywords" content="casino, roulette, slots, getting rich, gambling">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        neon: {
-                            green: '#39ff14',
-                            gold: '#ffd700',
-                            purple: '#9333ea',
-                            pink: '#ff00ff',
-                        }
-                    },
-                    boxShadow: {
-                        'neon-green': '0 0 5px #39ff14, 0 0 20px #39ff14',
-                        'neon-gold': '0 0 5px #ffd700, 0 0 20px #ffd700',
-                        'neon-purple': '0 0 5px #9333ea, 0 0 20px #9333ea',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-
-        .font-casino {
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .text-glow-green {
-            text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14, 0 0 30px #39ff14;
-        }
-
-        .text-glow-gold {
-            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
-        }
-
-        .btn-casino {
-            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-casino:hover {
-            box-shadow: 0 0 20px #9333ea, 0 0 40px #9333ea;
-            transform: translateY(-2px);
-        }
-
-        .input-casino {
-            background: rgba(17, 24, 39, 0.8);
-            border: 1px solid #374151;
-            transition: all 0.3s ease;
-        }
-
-        .input-casino:focus {
-            border-color: #39ff14;
-            box-shadow: 0 0 10px #39ff14;
-            outline: none;
-        }
-
-        .card-casino {
-            background: rgba(17, 24, 39, 0.9);
-            border: 1px solid #374151;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/tailwind.out.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
@@ -79,5 +17,6 @@
         {% block content %}{% endblock %}
     </main>
     {% include "includes/footer.html" %}
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

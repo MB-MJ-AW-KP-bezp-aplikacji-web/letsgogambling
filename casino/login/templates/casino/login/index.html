@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,59 +7,8 @@
     <meta name="description" content="Welcome to LE CASINO - NEVER stop gambling!">
     <meta name="keywords" content="casino, gambling, roulette, slots, games">
     <title>Welcome to the Casino!</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        neon: {
-                            green: '#39ff14',
-                            gold: '#ffd700',
-                            purple: '#9333ea',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        .font-casino { font-family: 'Orbitron', sans-serif; }
-        .text-glow-gold { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #ffd700; }
-        .text-glow-green { text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14; }
-        .text-glow-purple { text-shadow: 0 0 10px #9333ea; }
-        .border-neon-purple { border-color: #9333ea; }
-        .btn-casino {
-            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-casino:hover {
-            box-shadow: 0 0 20px #9333ea, 0 0 40px #9333ea;
-            transform: translateY(-2px);
-        }
-        .input-casino {
-            background: rgba(17, 24, 39, 0.8);
-            border: 1px solid #374151;
-            transition: all 0.3s ease;
-        }
-        .input-casino:focus {
-            border-color: #39ff14;
-            box-shadow: 0 0 10px #39ff14;
-            outline: none;
-        }
-        .card-casino {
-            background: rgba(17, 24, 39, 0.9);
-            border: 1px solid #374151;
-            backdrop-filter: blur(10px);
-        }
-        input[type=number].no-spinner::-webkit-inner-spin-button,
-        input[type=number].no-spinner::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number].no-spinner { -moz-appearance: textfield; }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/tailwind.out.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-4xl">

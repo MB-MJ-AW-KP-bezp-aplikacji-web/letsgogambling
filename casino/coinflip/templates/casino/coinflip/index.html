@@ -1,86 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Casino: Coin Flip{% endblock %}
 
 {% block extra_head %}
-<style>
-    .coin-option {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .coin-option:hover {
-        transform: scale(1.05);
-    }
-    .coin-option.selected {
-        border-color: #39ff14 !important;
-        box-shadow: 0 0 20px #39ff14;
-    }
-    .quick-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 12px;
-        justify-content: center;
-    }
-    .quick-btn {
-        flex: 0 1 auto;
-        min-width: 44px;
-        padding: 8px 10px;
-        font-size: 11px;
-        font-weight: bold;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-family: 'Orbitron', sans-serif;
-    }
-    .quick-btn.add {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        color: white;
-    }
-    .quick-btn.add:hover {
-        box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
-        transform: translateY(-1px);
-    }
-    .quick-btn.modify {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-    }
-    .quick-btn.modify:hover {
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-        transform: translateY(-1px);
-    }
-    .quick-btn.clear {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-    }
-    .quick-btn.clear:hover {
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-        transform: translateY(-1px);
-    }
-    .quick-btn.allin {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: white;
-    }
-    .quick-btn.allin:hover {
-        box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
-        transform: translateY(-1px);
-    }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    input[type=number] {
-        -moz-appearance: textfield;
-    }
-    .result-card {
-        display: none;
-    }
-    .result-card.show {
-        display: block;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/quick-buttons.css' %}">
+<link rel="stylesheet" href="{% static 'css/coinflip.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -137,181 +62,16 @@
         <p id="result-subtext" class="mt-2"></p>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_scripts %}
+<script src="{% static 'js/utils.js' %}"></script>
+<script src="{% static 'js/coinflip.js' %}"></script>
 <script>
-function getCookie(name) {
-    return document.cookie.split('; ')
-        .find(row => row.startsWith(name + '='))
-        ?.split('=')[1];
-}
-const csrftoken = getCookie('csrftoken');
-
-const balanceEl = document.getElementById("balance");
-const betInput = document.getElementById("bet-amount");
-const flipBtn = document.getElementById("flip-btn");
-const resultCard = document.getElementById("result-card");
-const resultEmoji = document.getElementById("result-emoji");
-const resultText = document.getElementById("result-text");
-const resultSubtext = document.getElementById("result-subtext");
-
-let selectedChoice = null;
-
-// Restore last bet from localStorage
-const savedBet = localStorage.getItem('coinflip_bet');
-if (savedBet) {
-    betInput.value = savedBet;
-}
-
-// Save bet amount when it changes and ensure integer
-betInput.addEventListener('change', () => {
-    const val = parseFloat(betInput.value) || 0;
-    betInput.value = val > 0 ? Math.floor(val) : '';
-    localStorage.setItem('coinflip_bet', betInput.value);
-});
-
-// Fetch initial balance
-fetch("/api/balance/")
-    .then(res => res.json())
-    .then(data => {
-        balanceEl.textContent = formatMoney(data.balance);
-    });
-
-function formatMoney(amount) {
-    // Format number with commas: 16986566 -> 16,986,566
-    return Math.floor(amount).toLocaleString('en-US');
-}
-
-function getCurrentBalance() {
-    // Remove commas before parsing: "16,986,566" -> 16986566
-    const balanceText = balanceEl.textContent.replace(/,/g, '');
-    return parseFloat(balanceText) || 0;
-}
-
-function setBetAmount(amount) {
-    betInput.value = amount > 0 ? Math.floor(amount) : '';
-    localStorage.setItem('coinflip_bet', betInput.value);
-}
-
-function addToBet(amount) {
-    const current = parseFloat(betInput.value) || 0;
-    setBetAmount(current + amount);
-}
-
-function multiplyBet(multiplier) {
-    const current = parseFloat(betInput.value) || 0;
-    setBetAmount(Math.floor(current * multiplier));
-}
-
-function allIn() {
-    setBetAmount(getCurrentBalance());
-}
-
-function updateFlipButton() {
-    const bet = Number(betInput.value);
-    const isValid = Number.isFinite(bet) && bet >= 1 && selectedChoice !== null;
-    flipBtn.disabled = !isValid;
-}
-
-// Coin option selection
-document.querySelectorAll('.coin-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.coin-option').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        selectedChoice = parseInt(option.dataset.choice);
-        updateFlipButton();
-    });
-});
-
-// Update button state when bet changes
-betInput.addEventListener('input', updateFlipButton);
-
-// Initial button state
-updateFlipButton();
-
-// Flip button
-flipBtn.addEventListener("click", () => {
-    const bet = Number(betInput.value);
-    localStorage.setItem('coinflip_bet', betInput.value);
-
-    if (bet > getCurrentBalance()) {
-        showResult('broke', null);
-        return;
-    }
-
-    flipBtn.disabled = true;
-
-    fetch("/api/coinflip/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
-        },
-        body: JSON.stringify({ bet: bet, choice: selectedChoice })
-    })
-    .then(res => res.json())
-    .then(data => {
-        flipBtn.disabled = false;
-
-        if (data.error) {
-            showResult('error', data.error);
-            return;
-        }
-
-        balanceEl.textContent = formatMoney(data.balance);
-
-        if (data.result === 1) {
-            showResult('win', formatMoney(data.win));
-        } else if (data.result === 0) {
-            showResult('lose', null);
-        } else {
-            showResult('broke', null);
-        }
-    })
-    .catch(err => {
-        flipBtn.disabled = false;
-        showResult('error', "Server error");
-    });
-});
-
-function showResult(type, value) {
-    resultCard.classList.add('show');
-    resultCard.className = 'result-card show card-casino rounded-2xl p-6 text-center';
-
-    switch(type) {
-        case 'win':
-            resultCard.classList.add('border-2', 'border-green-500');
-            resultEmoji.textContent = '🎉';
-            resultText.textContent = 'WINNER!';
-            resultText.className = 'font-casino text-2xl text-neon-green text-glow-green';
-            resultSubtext.textContent = '+$' + value;
-            resultSubtext.className = 'mt-2 text-gray-400';
-            break;
-        case 'lose':
-            resultCard.classList.add('border-2', 'border-red-500');
-            resultEmoji.textContent = '💀';
-            resultText.textContent = 'YOU LOSE';
-            resultText.className = 'font-casino text-2xl text-red-400';
-            resultSubtext.textContent = 'Better luck next time';
-            resultSubtext.className = 'mt-2 text-gray-500';
-            break;
-        case 'broke':
-            resultCard.classList.add('border-2', 'border-yellow-500');
-            resultEmoji.textContent = '💸';
-            resultText.textContent = 'TOO BROKE';
-            resultText.className = 'font-casino text-2xl text-yellow-400';
-            resultSubtext.textContent = 'Get more money first';
-            resultSubtext.className = 'mt-2 text-gray-500';
-            break;
-        case 'error':
-            resultCard.classList.add('border-2', 'border-red-500');
-            resultEmoji.textContent = '⚠️';
-            resultText.textContent = 'ERROR';
-            resultText.className = 'font-casino text-2xl text-red-400';
-            resultSubtext.textContent = value;
-            resultSubtext.className = 'mt-2 text-gray-500';
-            break;
-    }
-}
+    // Global function aliases for onclick handlers
+    function setBetAmount(amount) { setBetAmountCoinflip(amount); }
+    function addToBet(amount) { addToBetCoinflip(amount); }
+    function multiplyBet(mult) { multiplyBetCoinflip(mult); }
+    function allIn() { allInCoinflip(); }
 </script>
-
 {% endblock %}
