@@ -1,0 +1,142 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .audit-module {
+        margin-top: 20px;
+    }
+    .audit-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .audit-table thead tr {
+        background-color: #f8f8f8;
+        border-bottom: 2px solid #ddd;
+    }
+    .audit-table th {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    .audit-table tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .audit-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+    .audit-table .changes-cell {
+        font-family: monospace;
+        font-size: 12px;
+    }
+    .audit-badge {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-weight: bold;
+        font-size: 11px;
+    }
+    .audit-badge-create {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .audit-badge-update {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    .audit-badge-delete {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .audit-system {
+        color: #999;
+    }
+    .audit-change-row {
+        margin-bottom: 5px;
+    }
+    .audit-old-value {
+        color: #c7254e;
+        background-color: #f9f2f4;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+    .audit-new-value {
+        color: #155724;
+        background-color: #d4edda;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+    .audit-reason-box {
+        margin-top: 10px;
+        padding: 5px;
+        background-color: #e7f3ff;
+        border-left: 3px solid #2196F3;
+    }
+    .audit-reason-label {
+        color: #1976D2;
+    }
+    .audit-reason-value {
+        color: #0d47a1;
+    }
+</style>
+{% endblock %}
+
+{% block after_related_objects %}
+{{ block.super }}
+
+{% if audit_logs %}
+<div class="module audit-module">
+    <h2>{% trans "Audit History" %}</h2>
+    <table class="audit-table">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Action</th>
+                <th>User</th>
+                <th>Changes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in audit_logs %}
+            <tr>
+                <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    <span class="audit-badge {% if log.action == 0 %}audit-badge-create{% elif log.action == 1 %}audit-badge-update{% elif log.action == 2 %}audit-badge-delete{% endif %}">
+                        {{ log.get_action_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if log.actor %}
+                        {{ log.actor.username }}
+                    {% else %}
+                        <em class="audit-system">System</em>
+                    {% endif %}
+                </td>
+                <td class="changes-cell">
+                    {% if log.changes %}
+                        {% for field, values in log.changes_dict.items %}
+                            <div class="audit-change-row">
+                                <strong>{{ field }}:</strong>
+                                <span class="audit-old-value">{{ values.0|default:"None" }}</span>
+                                →
+                                <span class="audit-new-value">{{ values.1|default:"None" }}</span>
+                            </div>
+                        {% endfor %}
+                        {% if log.additional_data.balance_change_reason %}
+                            <div class="audit-reason-box">
+                                <strong class="audit-reason-label">Reason:</strong>
+                                <span class="audit-reason-value">{{ log.additional_data.balance_change_reason }}</span>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <em class="audit-system">No changes recorded</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

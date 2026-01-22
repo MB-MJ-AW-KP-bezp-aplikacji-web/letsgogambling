@@ -1,5 +1,6 @@
 from django.db import models
 from casino.login.models import User
+from auditlog.registry import auditlog
 
 
 class GameRound(models.Model):
@@ -57,3 +58,8 @@ class Bet(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - ${self.amount} on {self.color} (Round {self.round.round_number})"
+
+
+# Register models for audit logging
+auditlog.register(GameRound)
+auditlog.register(Bet)

@@ -9,6 +9,7 @@ from channels.db import database_sync_to_async
 from django.utils import timezone
 from django.db import transaction
 from .models import GameRound, Bet
+from casino.utils.balance_tracker import update_balance
 
 
 class RouletteConsumer(AsyncWebsocketConsumer):
@@ -295,8 +296,11 @@ class RouletteConsumer(AsyncWebsocketConsumer):
                     color=color
                 ).first()
 
-                user.balance -= amount
-                user.save()
+                update_balance(
+                    user,
+                    -amount,
+                    f"roulette_bet_round_{round_obj.round_number}_{color}"
+                )
 
                 if existing_bet:
                     existing_bet.amount += amount
