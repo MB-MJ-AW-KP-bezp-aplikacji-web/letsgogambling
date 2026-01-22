@@ -41,7 +41,7 @@ LE CASINO to wieloosobowe kasyno internetowe oparte na Django, oferujące gry w 
 - **Coinflip** - prosty rzut monetą
 
 **System użytkowników:**
-- Rejestracja i logowanie (zabezpieczone kodem PIN)
+- Rejestracja (dostęp chroniony kodem PIN) i logowanie
 - Profil użytkownika z historią wygranych
 - Audit log wszystkich operacji
 
@@ -54,13 +54,14 @@ LE CASINO to wieloosobowe kasyno internetowe oparte na Django, oferujące gry w 
 letsgogambling/
 ├── .github/              # GitHub Actions (CI/CD, MegaLinter)
 ├── casino/               # Główny projekt Django
-│   ├── api/              # Endpointy DRF (balance, spin)
+│   ├── api/              # Endpointy DRF (balance, spin, coinflip)
 │   ├── base/             # Wspólne modele (History, Codes)
 │   ├── coinflip/         # Gra w rzut monetą
 │   ├── login/            # Autentykacja (custom User model)
 │   ├── roulette/         # Ruletka multiplayer (WebSocket)
 │   ├── slots/            # Automaty do gier (REST API)
-│   └── user_mgr/         # Profil, saldo, mining
+│   ├── user_mgr/         # Profil, saldo, mining
+│   └── utils/            # Narzędzia pomocnicze (balance_tracker)
 ├── static/               # Pliki statyczne (CSS, JS)
 ├── templates/            # Szablony HTML
 ├── docker-compose.yml    # Konfiguracja Docker
@@ -97,8 +98,8 @@ python manage.py run_roulette_game
 ### 3.2 Uruchomienie z Docker
 
 ```bash
-# Skopiuj i skonfiguruj zmienne środowiskowe
-cp .env.example .env
+# Skonfiguruj zmienne środowiskowe w pliku .env
+# (wymagane: SECRET_KEY, opcjonalnie: REGISTER_PASSWORD)
 
 # Uruchom wszystkie serwisy
 docker-compose up
@@ -115,11 +116,12 @@ docker-compose up
 | `casino/` | Główne ustawienia projektu, konfiguracja ASGI/WSGI, routing URL |
 | `casino/roulette/` | Ruletka multiplayer (WebSocket, Django Channels) |
 | `casino/slots/` | Automaty do gier - siatka 3x3 emoji (REST API) |
-| `casino/coinflip/` | Rzut monetą (POST) |
+| `casino/coinflip/` | Rzut monetą |
 | `casino/login/` | Custom User model, autentykacja |
 | `casino/user_mgr/` | Profil, zarządzanie saldem, mining (proof-of-work) |
 | `casino/base/` | Wspólne modele (History, Codes) |
-| `casino/api/` | Endpointy DRF dla salda i spinów |
+| `casino/api/` | Endpointy DRF (saldo, spin, coinflip) |
+| `casino/utils/` | Narzędzia pomocnicze (balance_tracker) |
 
 ### 4.2 System ruletki
 
@@ -151,13 +153,16 @@ Ruletka wykorzystuje architekturę background process + WebSocket:
 | **Auth** | `GET/POST` | `/login/` | Logowanie/rejestracja |
 | **API** | `GET` | `/api/balance/` | Pobranie salda użytkownika |
 | | `POST` | `/api/spin/` | Wykonanie spinu na automacie |
+| | `POST` | `/api/coinflip/` | Wykonanie rzutu monetą |
 
 ### 4.4 Modele bazy danych
 
 - **User** (custom AbstractBaseUser): `username`, `balance`, `is_active`, `is_staff`
-- **GameRound**: `round_number`, `status` (BETTING/SPINNING/COMPLETED), `winning_color`, `winning_slot`
-- **Bet**: `user`, `round`, `color`, `amount`, `payout` (unikalny per user/round/color)
-- **History**: historia wszystkich wygranych dla profili użytkowników
+- **GameRound**: `round_number`, `status` (BETTING/SPINNING/COMPLETED), `winning_color`, `winning_slot`, `created_at`, `spin_time`
+- **Bet**: `user`, `round`, `color`, `amount`, `payout`, `placed_at` (unikalny per user/round/color)
+- **History**: `u_id`, `amount`, `cashout_time` - przechowuje wygrane ze wszystkich gier (ruletka, sloty, coinflip)
+- **Codes**: `name`, `value` - kody promocyjne
+- **UsedCodes**: `u_id`, `c_id` - wykorzystane kody przez użytkowników
 
 ## 5. CI/CD i bezpieczeństwo
 
