@@ -167,9 +167,22 @@ Ruletka wykorzystuje architekturę background process + WebSocket:
 
 ### 4.5 Architektura środowiska chmurowego
 
+![alt text](readme_images/gcp.png)
 **Dostęp użytkowników i warstwa brzegowa**
 
 Ruch użytkowników trafia do usługi przez warstwę brzegową Google Cloud. Za dystrybucję treści statycznych i skrócenie czasu odpowiedzi odpowiada Cloud CDN. Ruch przychodzący jest filtrowany przez Cloud Armor, a następnie kierowany do Cloud Load Balancing, który obsługuję połączenia i przekazuje żądania HTTP oraz WebSocket do backendu aplikacji.
+
+**Cloud Armor – Web Application Firewall (WAF)**
+
+Cloud Armor zapewnia ochronę aplikacji przed atakami warstwy 7 (HTTP/HTTPS) oraz atakami DDoS. Polityki bezpieczeństwa Cloud Armor filtrują niepożądany ruch jeszcze przed dotarciem do Load Balancera. Skonfigurowane reguły obejmują:
+
+- **Ochrona przed atakami DDoS** - automatyczna detekcja i mitigacja ataków volumetrycznych
+- **Reguły OWASP Top 10** - ochrona przed typowymi podatnościami webowymi (SQL injection, XSS, RCE)
+- **Geoblocking** - możliwość ograniczenia dostępu do aplikacji z wybranych regionów geograficznych
+- **Rate limiting** - kontrola liczby żądań z pojedynczych adresów IP
+- **Adaptacyjna ochrona** - Machine Learning do wykrywania anomalii w ruchu
+
+Wszystkie zdarzenia związane z blokowaniem ruchu są logowane w Cloud Logging, co umożliwia analizę prób ataków i dostrajanie polityk bezpieczeństwa.
 
 **Warstwa aplikacyjna – Cloud Run**
 
@@ -201,37 +214,59 @@ Obrazy kontenerów publikowane do Google Artifact Registry są objęte skanowani
 
 **Obserwowalność – Cloud Logging i Cloud Monitoring**
 
-Logi aplikacji i infrastruktury są zbierane w Cloud Logging, co umożliwia analizę błędów, żądań i zdarzeń uruchomieniowych.
+Logi aplikacji i infrastruktury są zbierane w Cloud Logging, co umożliwia analizę błędów, żądań i zdarzeń uruchomieniowych. Oprócz Cloud Logging, logi wypychane są także przez Grafana Alloy do Grafany.
+
 
 
 ## 5. CI/CD i bezpieczeństwo
 
-### Pipeline CI/CD
+## CI/CD
+Aplikacja musi przejść wiele kroków przed automatycznym deploymentem na GCP
+
+**Przy każdym pushu**
+- Testy jednostkowe Django
+- MegaLinter
+- Snyk Code
+
+**Przy merge na master branch dodatkowo**
+- Budowa obrazu i push do Google Artifact Registry
+- Dynamiczny skan przez Nuclei
+
+Ostatecznie nowa wersja aplikacji jest wypuszczana do Cloud Run
+
+**Diagram kroków w CI/CD**
+![alt text](readme_images/cicd.png)
+### Pipeline CI/CD - narzędzia bezpieczeństwa
 
 - **MegaLinter** - automatyczna analiza kodu przy każdym push/PR
-  - `PYTHON_RUFF` - linter Python
-  - `PYTHON_BANDIT` - analiza bezpieczeństwa (SAST)
-  - `HTML_DJLINT` - linter szablonów Django
+  - `ruff` - linter Python
+  - `djlint` - linter Django templates
+  - `gitleaks` - detektor sekretów
+  - `actionlint` - linter GitHub Actions
+  - `hadolint` - linter Dockerfile
 
-### Zastosowane zabezpieczenia
+- **Snyk** - zarządzanie zależnościami i SAST
+   - `Snyk Open Source` - sprawdzanie podatności w bibliotekach, automatyczne podbijanie wersji
+   - `Snyk Code` - SAST, sprawdzanie jakości kodu przy każdym PR
+
+- **Nuclei** - DAST
+   - skaner uruchamiany w formie Docker-in-Docker przed deploymentem aplikacji na GCP
+
+### Zastosowane zabezpieczenia na poziomie aplikacji
 
 - **HTTPS** - szyfrowana komunikacja
 - **CORS** - kontrola dostępu między domenami (`django-cors-headers`)
-- **Audit logging** - logowanie wszystkich operacji (`django-auditlog`)
+- **Audit logging** - logowanie wszystkich operacji (`django-auditlog`) na poziomie modeli Django
 - **Security headers** - zabezpieczone nagłówki HTTP
 - **Non-root Docker** - kontener uruchamiany jako użytkownik niepriwilejowany
 - **Healthcheck** - monitoring stanu aplikacji
 
-### Bazy danych
-
-- **PostgreSQL** - dane trwałe (użytkownicy, historia wygranych)
-- **Redis** - dane ulotne (rundy ruletki, channel layer WebSocket)
 
 ## 6. Autorzy
 
 | Autor | Zakres prac                                                                                                                                                                            |
 | :--- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Michał** | CI/CD, Grafana, monitoring                                                                                                                                                             |
+| **Michał** | CI/CD, Grafana, Projekt infrastruktury w Google Cloud,  Security - konfiguracja linterów oraz narzędzi SAST, DAST, Cloud Armor                                                                                                                                  |
 | **Kacper** | Projekt i wdrożenie infrastruktury w Google Cloud: Cloud Run, Cloud SQL (PostgreSQL), Memorystore (Redis), VPC/networking, Load Balancer + TLS, Cloud Armor (WAF), zarządzanie sekretami oraz Logging/Monitoring. |
 | **Mateusz** | Projekt aplikacji, schematy bazy danych,backend Django, autentykacja, proof-of-work (dodawanie funduszy), frontend, coinflip, ruletka (WebSocket), zabezpieczenie headerów, Dockerfile |
 | **Adam** | Projekt aplikacji, schematy bazy danych, boilerplate Django, coinflip (PoC), REST API, logika slotów, CORS, unit testy                                                                 |
