@@ -18,7 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
-REGISTER_PASSWORD = os.getenv("REGISTER_PASSWORD")
+_register_password = os.getenv("REGISTER_PASSWORD")
+REGISTER_PASSWORD = int(_register_password) if _register_password else None
 
 DEBUG = os.environ.get('DJANGO_DEBUG', '').lower() == 'true'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
