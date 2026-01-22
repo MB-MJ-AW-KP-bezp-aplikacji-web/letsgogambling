@@ -5,6 +5,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 
 from casino.login.models import User
 from django.shortcuts import render, redirect
+from casino.settings import REGISTER_PASSWORD
 
 
 def login_page(request):
@@ -16,7 +17,7 @@ def login_page(request):
         if not request.POST.get('pin'):
             return render(request, "casino/login/index.html", {'register_err': "Empty PIN"})
         pin = int(request.POST.get('pin'))
-        if pin != 213721372137:
+        if pin != REGISTER_PASSWORD:
             return render(request, "casino/login/index.html", {'register_err': "Wrong PIN"})
         else:
             request.session['legit'] = True
