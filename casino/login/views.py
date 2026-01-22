@@ -3,9 +3,10 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.http import url_has_allowed_host_and_scheme
 
+from django.conf import settings
+
 from casino.login.models import User
 from django.shortcuts import render, redirect
-from casino.settings import REGISTER_PASSWORD
 
 
 def login_page(request):
@@ -17,7 +18,7 @@ def login_page(request):
         if not request.POST.get('pin'):
             return render(request, "casino/login/index.html", {'register_err': "Empty PIN"})
         pin = int(request.POST.get('pin'))
-        if pin != REGISTER_PASSWORD:
+        if pin != settings.REGISTER_PASSWORD:
             return render(request, "casino/login/index.html", {'register_err': "Wrong PIN"})
         else:
             request.session['legit'] = True
