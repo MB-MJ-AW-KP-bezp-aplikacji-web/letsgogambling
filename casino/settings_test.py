@@ -23,7 +23,7 @@ CHANNEL_LAYERS = {
 }
 
 # Set required environment variables for testing
-SECRET_KEY = 'test-secret-key-for-ci-testing-only'  # noqa: S105
+SECRET_KEY = 'test-secret-key-for-ci-testing-only'  # noqa
 
 # Disable debug for more realistic testing
 DEBUG = False
