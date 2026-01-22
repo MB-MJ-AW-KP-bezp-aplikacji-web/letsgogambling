@@ -1,6 +1,7 @@
 # LE CASINO
 
-Projekt zaliczeniowy na przedmiot **Bezpieczeństwo Serwerów i Aplikacji Webowych** na **Politechnice Wrocławskiej**. Specjalizacja: **Cyberbezpieczeństwo**.
+Projekt zaliczeniowy na przedmiot **Bezpieczeństwo Serwerów i Aplikacji Webowych** na **Politechnice Wrocławskiej**. 
+Kierunek: **Cyberbezpieczeństwo**.
 
 LE CASINO to wieloosobowe kasyno internetowe oparte na Django, oferujące gry w czasie rzeczywistym (WebSocket) oraz klasyczne gry kasynowe (REST API).
 
@@ -164,6 +165,36 @@ Ruletka wykorzystuje architekturę background process + WebSocket:
 - **Codes**: `name`, `value` - kody promocyjne
 - **UsedCodes**: `u_id`, `c_id` - wykorzystane kody przez użytkowników
 
+### 4.5 Architektura środowiska chmurowego
+
+**Dostęp użytkowników i warstwa brzegowa**
+Ruch użytkowników trafia do usługi przez warstwę brzegową Google Cloud. Za dystrybucję treści statycznych i skrócenie czasu odpowiedzi odpowiada Cloud CDN. Ruch przychodzący jest filtrowany przez Cloud Armor, a następnie kierowany do Cloud Load Balancing, który obsługuję połączenia i przekazuje żądania HTTP oraz WebSocket do backendu aplikacji.
+
+**Warstwa aplikacyjna – Cloud Run**
+Aplikacja działa na Google Cloud Run jako kontener i jest skalowana automatycznie w oparciu o obciążenie. Konfiguracja aplikacji jest przekazywana poprzez zmienne środowiskowe, a dane wrażliwe są pobierane z Secret Manager.
+
+**Baza danych – Cloud SQL z redundancją**
+Warstwa danych oparta jest o Cloud SQL (PostgreSQL). Usługa zapewnia trwałość danych i możliwość konfiguracji wysokiej dostępności w celu utrzymania ciągłości działania przy awariach infrastruktury. Aplikacja łączy się z bazą danych wewnętrznie, bez ujawniania danych dostępowych w kodzie.
+
+**Cache / komunikacja – Memorystore (Redis)**
+Memorystore pełni rolę pamięci podręcznej oraz komponentu wspierającego mechanizmy czasu rzeczywistego (np. stan gry, synchronizacja komunikatów). Dostęp do Redis realizowany jest po adresacji prywatnej w ramach sieci projektu.
+
+**Sieć – Virtual Private Cloud**
+Komponenty backendowe korzystają z Virtual Private Cloud (VPC). Dostęp do zasobów prywatnych (np. Cloud SQL, Memorystore) odbywa się po prywatnych zakresach adresowych. Separacja ruchu publicznego od prywatnego ogranicza ekspozycję infrastruktury.
+
+**Sekrety i konfiguracja – Secret Manager**
+Wrażliwe wartości (np. SECRET_KEY, DB_PASSWORD) są przechowywane w Google Secret Manager i mapowane do aplikacji jako zmienne środowiskowe. Dostęp do tych sekretów jest kontrolowany uprawnieniami IAM, co ogranicza ryzyko ich wycieku.
+
+**Rejestr obrazów – Artifact Registry**
+Obrazy kontenerów są przechowywane w Google Artifact Registry i stanowią źródło wdrożeń dla Cloud Run. Artifact Registry zapewnia centralne repozytorium wersji obrazów oraz kontrolę dostępu.
+
+**Skanowanie obrazów w Artifact Registry**
+Obrazy kontenerów publikowane do Google Artifact Registry są objęte skanowaniem bezpieczeństwa pod kątem znanych podatności w warstwach obrazu i zależnościach systemowych. Wyniki skanowania są dostępne w konsoli GCP dla danego obrazu i stanowią element kontroli bezpieczeństwa przed wdrożeniem.
+
+**Obserwowalność – Cloud Logging i Cloud Monitoring**
+Logi aplikacji i infrastruktury są zbierane w Cloud Logging, co umożliwia analizę błędów, żądań i zdarzeń uruchomieniowych.
+
+
 ## 5. CI/CD i bezpieczeństwo
 
 ### Pipeline CI/CD
@@ -192,6 +223,6 @@ Ruletka wykorzystuje architekturę background process + WebSocket:
 | Autor | Zakres prac                                                                                                                                                                            |
 | :--- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Michał** | CI/CD, Grafana, monitoring                                                                                                                                                             |
-| **Kacper** | Infrastruktura Google Cloud                                                                                                                                                            |
+| **Kacper** | Projekt i wdrożenie infrastruktury w Google Cloud: Cloud Run, Cloud SQL (PostgreSQL), Memorystore (Redis), VPC/networking, Load Balancer + TLS, Cloud Armor (WAF), zarządzanie sekretami oraz Logging/Monitoring. |
 | **Mateusz** | Projekt aplikacji, schematy bazy danych,backend Django, autentykacja, proof-of-work (dodawanie funduszy), frontend, coinflip, ruletka (WebSocket), zabezpieczenie headerów, Dockerfile |
 | **Adam** | Projekt aplikacji, schematy bazy danych, boilerplate Django, coinflip (PoC), REST API, logika slotów, CORS, unit testy                                                                 |
