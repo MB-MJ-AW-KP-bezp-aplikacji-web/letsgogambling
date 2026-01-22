@@ -15,6 +15,7 @@ from asgiref.sync import async_to_sync
 from casino.roulette.models import GameRound, Bet
 from casino.roulette.game_logic import spin_wheel, calculate_payout
 from casino.base.models import History
+from casino.utils.balance_tracker import update_balance
 
 
 class Command(BaseCommand):
@@ -126,9 +127,12 @@ class Command(BaseCommand):
             bet.save()
 
             if payout > 0:
-                # User won - add to balance
-                bet.user.balance += payout
-                bet.user.save()
+                # User won - add to balance with tracking
+                update_balance(
+                    bet.user,
+                    payout,
+                    f"roulette_win_round_{round_obj.round_number}_{winning_color}"
+                )
 
                 # Log in history
                 History.objects.create(
