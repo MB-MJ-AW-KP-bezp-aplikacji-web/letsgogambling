@@ -1,10 +1,14 @@
 name: Build, Scan, and Deploy to Cloud Run
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Django Tests"]
+    types:
+      - completed
     branches:
       - master
       - main
+
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION }}
@@ -16,6 +20,7 @@ jobs:
   build-and-scan:
     name: Build Docker Image and Security Scan
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     permissions:
       contents: read
