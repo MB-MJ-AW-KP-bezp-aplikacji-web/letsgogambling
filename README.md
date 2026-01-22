@@ -52,12 +52,14 @@ Infrakstuktura w Google Cloud
 *dopisz sobie*
 ##### Mateusz
 Praca nad wstępnym projektem aplikacji - schematy bazy danych, omówienie technologii
-Wstępny boilerplate w Django - struktura aplikacji, coinflip jako proof of concept
+Wstępny boilerplate w Django - struktura aplikacji
 Autentykacja
-Mechanizm zdobywania "pieniędzy" poprzez liczenie hasha
+Mechanizm zdobywania "pieniędzy" poprzez proof of work
 Frontend
+coinflip implementacja
 Ruletka, web sockety
-
+zabezpieczenie headerów
+przygotowanie dockerfile
 ##### Adam
 Praca nad wstępnym projektem aplikacji - schematy bazy danych, omówienie technologii
 Wstępny boilerplate w Django - struktura aplikacji, coinflip jako proof of concept
