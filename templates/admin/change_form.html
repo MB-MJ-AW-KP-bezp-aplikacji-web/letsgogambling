@@ -1,0 +1,73 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block after_related_objects %}
+{{ block.super }}
+
+{% if audit_logs %}
+<div class="module" style="margin-top: 20px;">
+    <h2>{% trans "Audit History" %}</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f8f8f8; border-bottom: 2px solid #ddd;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Timestamp</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Action</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">User</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Changes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in audit_logs %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 8px; border: 1px solid #ddd;">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    <span style="
+                        padding: 3px 8px;
+                        border-radius: 3px;
+                        font-weight: bold;
+                        font-size: 11px;
+                        {% if log.action == 0 %}
+                            background-color: #d4edda; color: #155724;
+                        {% elif log.action == 1 %}
+                            background-color: #fff3cd; color: #856404;
+                        {% elif log.action == 2 %}
+                            background-color: #f8d7da; color: #721c24;
+                        {% endif %}
+                    ">
+                        {{ log.get_action_display }}
+                    </span>
+                </td>
+                <td style="padding: 8px; border: 1px solid #ddd;">
+                    {% if log.actor %}
+                        {{ log.actor.username }}
+                    {% else %}
+                        <em style="color: #999;">System</em>
+                    {% endif %}
+                </td>
+                <td style="padding: 8px; border: 1px solid #ddd; font-family: monospace; font-size: 12px;">
+                    {% if log.changes %}
+                        {% for field, values in log.changes_dict.items %}
+                            <div style="margin-bottom: 5px;">
+                                <strong>{{ field }}:</strong>
+                                <span style="color: #c7254e; background-color: #f9f2f4; padding: 2px 4px; border-radius: 3px;">{{ values.0|default:"None" }}</span>
+                                →
+                                <span style="color: #155724; background-color: #d4edda; padding: 2px 4px; border-radius: 3px;">{{ values.1|default:"None" }}</span>
+                            </div>
+                        {% endfor %}
+                        {% if log.additional_data.balance_change_reason %}
+                            <div style="margin-top: 10px; padding: 5px; background-color: #e7f3ff; border-left: 3px solid #2196F3;">
+                                <strong style="color: #1976D2;">Reason:</strong>
+                                <span style="color: #0d47a1;">{{ log.additional_data.balance_change_reason }}</span>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <em style="color: #999;">No changes recorded</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

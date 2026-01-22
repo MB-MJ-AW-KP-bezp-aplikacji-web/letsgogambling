@@ -1,6 +1,12 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from auditlog.registry import auditlog
+from auditlog.context import set_actor
+import logging
+
+logger = logging.getLogger('auditlog')
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -34,3 +40,4 @@ class User(AbstractBaseUser):
         return self.is_staff
 
 
+auditlog.register(User)

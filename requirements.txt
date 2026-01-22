@@ -14,3 +14,4 @@ psycopg
 sqlparse>=0.5.4 # not directly required, pinned by Snyk to avoid a vulnerability
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
 django-cors-headers==4.9.0
+django-auditlog==3.4.1
