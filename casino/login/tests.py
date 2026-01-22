@@ -2,7 +2,10 @@ from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from casino.login.models import User
 
+TEST_PIN = 213721372137
 
+
+@override_settings(REGISTER_PASSWORD=TEST_PIN)
 class LoginPageTests(TestCase):
     
     def setUp(self):
@@ -41,7 +44,7 @@ class LoginPageTests(TestCase):
     
     def test_correct_pin_sets_session_and_redirects(self):
         """Test correct PIN sets session and redirects to register"""
-        response = self.client.post(self.url, {"pin": "213721372137"})
+        response = self.client.post(self.url, {"pin": str(TEST_PIN)})
         
         self.assertRedirects(response, reverse("register"))
         self.assertTrue(self.client.session.get("legit"))
@@ -130,6 +133,7 @@ class LoginUserTests(TestCase):
         )
 
 
+@override_settings(REGISTER_PASSWORD=TEST_PIN)
 class RegisterUserTests(TestCase):
     
     def setUp(self):
@@ -367,6 +371,7 @@ class LogoutUserTests(TestCase):
         self.assertEqual(response.status_code, 200)  # No redirect
 
 
+@override_settings(REGISTER_PASSWORD=TEST_PIN)
 class LoginFlowIntegrationTests(TestCase):
     """Test complete login flow from PIN to registration to login"""
     
@@ -378,7 +383,7 @@ class LoginFlowIntegrationTests(TestCase):
         # Step 1: Enter PIN
         response = self.client.post(
             reverse("login_page"),
-            {"pin": "213721372137"}
+            {"pin": str(TEST_PIN)}
         )
         self.assertRedirects(response, reverse("register"))
         
