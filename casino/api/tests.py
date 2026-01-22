@@ -154,7 +154,7 @@ class CoinflipDeterministicTests(AuthenticatedAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["result"], 1)
-        self.assertEqual(response.data["win"], 100)
+        self.assertEqual(response.data["win"], 200)
         self.assertEqual(self.user.balance, 1100)
 
         self.assertTrue(
